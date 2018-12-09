@@ -47,7 +47,6 @@ Volumes:
 * `-v /local-decrypt` - Local files stored on disk - Append **:shared**
 * `-v /config` - Rclone and plexdrive configurations
 * `-v /chunks` - Plexdrive cache chunks
-* `-v /data/db` - MongoDB database
 * `-v /log` - Log files from mount, cloudupload and rmlocal
 * `-v /cloud-encrypt` - Cloud files encrypted synced with Plexdrive. This is empty if `ENCRYPT_MEDIA` is 0. - Append **:shared**
 * `-v /cloud-decrypt` - Cloud files decrypted with Rclone - Append **:shared**
@@ -62,7 +61,6 @@ Environment variables:
 * `-e CHUNK_SIZE` - Plexdrive: The size of each chunk that is downloaded (default **10M**)
 * `-e CLEAR_CHUNK_MAX_SIZE` - Plexdrive: The maximum size of the temporary chunk directory (empty as default)
 * `-e CLEAR_CHUNK_AGE` - Plexdrive: The maximum age of a cached chunk file (default **24h**) - this is ignored if `CLEAR_CHUNK_MAX_SIZE` is set
-* `-e MONGO_DATABASE` - Mongo database used for Plexdrive (default **plexdrive**)
 * `-e DATE_FORMAT` - Date format for loggin (default **+%F@%T**)
 * `-e REMOVE_LOCAL_FILES_BASED_ON` - Remove local files based on `space`, `time` or `instant` (default **space**)
 * `-e REMOVE_LOCAL_FILES_WHEN_SPACE_EXCEEDS_GB` - Remove local files when local storage exceeds this value in GB (default **100**) - this is ignored if `REMOVE_LOCAL_FILES_BASED_ON` is set to time or instant
@@ -73,7 +71,8 @@ Environment variables:
 * `-e PLEX_TOKEN` If you want to use empty trash script you have to provide the plex token for your Plex Media Server (default empty).
 * `-e PGID` Group id
 * `-e PUID` User id
-
+* `-e CLOUDUPLOADTIME` - When to run cloudupload using cron expression (default 0 1 * * * ) set to "0 0 31 2 0" to disable
+* `-e RMDELETETIME` -- When to run cloudupload using cron expression (default 0 1 * * * ) set to "0 0 31 2 0" to disable
 
 `--privileged --cap-add=MKNOD --cap-add=SYS_ADMIN --device=/dev/fuse` must be there for fuse to work within the container.
 

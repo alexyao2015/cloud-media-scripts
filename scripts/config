@@ -21,20 +21,40 @@ check_rclone_cloud () {
 	fi
 }
 
-check_rclone_local () {
-	if [ "$(printenv ENCRYPT_MEDIA)" != "0" ]; then
-		if [[ ! "${rclone_local_endpoint}" == *: ]]; then
+check_rclone_read () {
+	if [[ ! "${rclone_read_endpoint}" == *: ]]; then
+		printf "\n\n"
+		echo "Missing colon (:) in RCLONE_READ_ENDPOINT (${rclone_read_endpoint})"
+		echo "Run: docker exec -ti <DOCKER_CONTAINER> rclone_setup"
+		printf "\n\n"
+
+		exit 02
+	fi
+
+	if [ "$(rclone listremotes $rclone_config | grep "${rclone_read_endpoint}" | wc -l)" == "0" ]; then
+		printf "\n\n"
+		echo "RCLONE_READ_ENDPOINT (${rclone_read_endpoint}) endpoint has not been created within rclone"
+		echo "Run: docker exec -ti <DOCKER_CONTAINER> rclone_setup"
+		printf "\n\n"
+
+		exit 02
+	fi
+}
+
+check_rclone_mirror () {
+	if [ "$(printenv MIRROR_MEDIA)" != "0" ]; then
+		if [[ ! "$(printenv RCLONE_MIRROR_ENDPOINT)" == *: ]]; then
 			printf "\n\n"
-			echo "Missing colon (:) in RCLONE_LOCAL_ENDPOINT (${rclone_local_endpoint})"
+			echo "Missing colon (:) in RCLONE_MIRROR_ENDPOINT ($(printenv RCLONE_MIRROR_ENDPOINT))"
 			echo "Run: docker exec -ti <DOCKER_CONTAINER> rclone_setup"
 			printf "\n\n"
 
 			exit 02
 		fi
 
-		if [ "$(rclone listremotes $rclone_config | grep "${rclone_local_endpoint}" | wc -l)" == "0" ]; then
+		if [ "$(rclone listremotes $rclone_config | grep $(printenv RCLONE_MIRROR_ENDPOINT) | wc -l)" == "0" ]; then
 			printf "\n\n"
-			echo "RCLONE_LOCAL_ENDPOINT (${rclone_local_endpoint}) endpoint has not been created within rclone"
+			echo "RCLONE_MIRROR_ENDPOINT ($(printenv RCLONE_MIRROR_ENDPOINT)) endpoint has not been created within rclone"
 			echo "Run: docker exec -ti <DOCKER_CONTAINER> rclone_setup"
 			printf "\n\n"
 

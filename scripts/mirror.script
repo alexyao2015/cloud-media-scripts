@@ -1,0 +1,24 @@
+#!/bin/bash
+###############################################################################
+# CONFIGURATION
+###############################################################################
+# shellcheck source=config
+
+. "/usr/bin/config"
+##############################################################################
+
+# If script is already running; abort.
+if pidof -o %PPID -x "$(basename "$0")"; then
+	echo "[ $(date $(printenv DATE_FORMAT)) ] Sync already in progress. Aborting."
+	exit 3
+fi
+
+check_rclone_cloud
+check_rclone_mirror
+
+# Syncing Google Drive with mirror endpoint
+echo "[ $(date $(printenv DATE_FORMAT)) ] Syncing Google Drive with mirror endpoint"
+rclone sync $rclone_mirror_options "$(printenv RCLONE_CLOUD_ENDPOINT)/" "$(printenv RCLONE_MIRROR_ENDPOINT)/" >/dev/null 2>&1
+
+# success!
+exit 0

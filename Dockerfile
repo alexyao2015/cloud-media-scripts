@@ -1,64 +1,90 @@
-####################
-# BASE IMAGE
-####################
-FROM ubuntu:16.04
+FROM alpine:latest
 
-MAINTAINER madslundt@live.dk <madslundt@live.dk>
+ENV RCLONE_VERSION="v1.45"
+ENV RCLONE_RELEASE="rclone-${RCLONE_VERSION}-linux-amd64"
+ENV RCLONE_ZIP="${RCLONE_RELEASE}.zip"
+ENV RCLONE_URL="https://github.com/ncw/rclone/releases/download/${RCLONE_VERSION}/${RCLONE_ZIP}"
 
+#ENV RCLONE_VERSION="current"
+#ENV RCLONE_RELEASE="rclone-${RCLONE_VERSION}-linux-amd64"
+#ENV RCLONE_ZIP="${RCLONE_RELEASE}.zip"
+#ENV RCLONE_URL="https://downloads.rclone.org/${RCLONE_ZIP}"
 
-####################
-# INSTALLATIONS
-####################
-RUN apt-get update && \
-    apt-get -y upgrade && \
-    apt-get install -y \
-        curl \
-        fuse \
-        unionfs-fuse \
-        bc \
-        unzip \
-        wget \
-        ca-certificates && \
-    update-ca-certificates && \
-    apt-get install -y openssl && \
-    sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
+# dependencies
+ENV DEPS \
+    bash \
+    bc \
+    ca-certificates \
+    coreutils \
+    curl \
+    findutils \
+    fuse \
+    openssl \
+    procps \
+    shadow \
+    tzdata \
+    unionfs-fuse \
+    unzip \
+    wget
 
-# MongoDB 3.4
-RUN \
-   apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6 && \
-   echo "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.4.list && \
-   apt-get update && \
-   apt-get install -y mongodb-org
+RUN apk update \
+    && apk add --no-cache $DEPS \
+    && sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
+
+###################
+# MergerFS
+###################
+RUN apk add mergerfs --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
 
 # S6 overlay
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
 ENV S6_KEEP_ENV=1
 
-RUN \
-    OVERLAY_VERSION=$(curl -sX GET "https://api.github.com/repos/just-containers/s6-overlay/releases/latest" | awk '/tag_name/{print $4;exit}' FS='[""]') && \
+RUN OVERLAY_VERSION=$(curl -sX GET "https://api.github.com/repos/just-containers/s6-overlay/releases/latest" | awk '/tag_name/{print $4;exit}' FS='[""]') && \
     curl -o /tmp/s6-overlay.tar.gz -L "https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-amd64.tar.gz" && \
     tar xfz  /tmp/s6-overlay.tar.gz -C /
 
+# Rclone
+RUN cd /tmp \
+    && wget "$RCLONE_URL" \
+    && unzip "$RCLONE_ZIP" \
+    && chmod a+x "${RCLONE_RELEASE}/rclone" \
+    && cp -rf "${RCLONE_RELEASE}/rclone" "/usr/bin/rclone" \
+    && rm -rf "$RCLONE_ZIP" \
+    && rm -rf "$RCLONE_RELEASE"
+
+RUN apk del \
+    curl \
+    unzip \
+    wget
 
 ####################
 # ENVIRONMENT VARIABLES
 ####################
-# Encryption
-ENV ENCRYPT_MEDIA "1"
-ENV READ_ONLY "1"
 
 # Rclone
-ENV BUFFER_SIZE "500M"
-ENV MAX_READ_AHEAD "30G"
-ENV CHECKERS "16"
-ENV RCLONE_CLOUD_ENDPOINT "gd-crypt:"
-ENV RCLONE_LOCAL_ENDPOINT "local-crypt:"
+ENV COPY_BUFFER_SIZE "512M"
+ENV COPY_CHECKERS "16"
+ENV RCLONE_CLOUD_ENDPOINT "direct-decrypt:"
+ENV RCLONE_CACHE_ENDPOINT "cache-decrypt:"
+ENV RCLONE_LOCAL_ENDPOINT "local-decrypt:"
+ENV RCLONE_MASK "000"
+ENV RCLONE_READ_TYPE "VFS"
+ENV RCLONE_CACHE_READ_OPTIONS "--local-no-check-updated --buffer-size=0 --cache-chunk-size=5M --cache-info-age=28h --cache-read-retries=3 --cache-chunk-total-size=3G --cache-workers=10 --contimeout=5s --dir-cache-time=24h --max-read-ahead=128k --transfers=3 --tpslimit=3 --timeout=5s --track-renames -vv"
+ENV RCLONE_VFS_READ_OPTIONS "--allow-other --buffer-size=2048M --dir-cache-time=72h --drive-chunk-size=256M --vfs-read-chunk-size=256M --vfs-read-chunk-size-limit=0 --transfers=10 --drive-v2-download-min-size=0 -vv"
+ENV RCLONE_CLOUD_OPTIONS "--dir-cache-time=70h"
+ENV RCLONE_PRECACHE "1"
+ENV RCLONE_PRECACHE_DIR "/local-media"
+ENV RCLONE_READ_MANUAL_ENDPOINT ""
 
-# Plexdrive
-ENV CHUNK_SIZE "10M"
-ENV CLEAR_CHUNK_MAX_SIZE ""
-ENV CLEAR_CHUNK_AGE "24h"
-ENV MONGO_DATABASE "plexdrive"
+# Rclone Mirror Settings
+ENV MIRROR_MEDIA "0"
+ENV RCLONE_MIRROR_ENDPOINT "gdm-crypt:"
+ENV ENCRYPT_MIRROR_MEDIA "1"
+ENV MIRROR_BWLIMIT "100M"
+ENV MIRROR_TRANSFERS "4"
+ENV MIRROR_TPS_LIMIT "1"
+ENV MIRROR_TPS_LIMIT_BURST "1"
 
 # Time format
 ENV DATE_FORMAT "+%F@%T"
@@ -73,41 +99,40 @@ ENV REMOVE_LOCAL_FILES_AFTER_DAYS "30"
 ENV PLEX_URL ""
 ENV PLEX_TOKEN ""
 
+#cron
+ENV CLOUDUPLOADTIME "0 1 * * *"
+ENV RMDELETETIME "0 6 * * *"
+
+# Union Mount MERGERFS OR UNIONFS
+ENV UNION_PROGRAM "MERGERFS"
+ENV MERGERFS_OPTIONS "splice_move,atomic_o_trunc,auto_cache,big_writes,default_permissions,direct_io,nonempty,allow_other,sync_read,category.create=ff,category.search=ff,minfreespace=0"
 
 ####################
 # SCRIPTS
 ####################
 COPY setup/* /usr/bin/
-COPY install.sh /
 COPY scripts/* /usr/bin/
 COPY root /
 
-RUN chmod a+x /install.sh && \
-    sh /install.sh && \
-    chmod a+x /usr/bin/* && \
+RUN chmod a+x /usr/bin/* && \
     groupmod -g 1000 users && \
 	useradd -u 911 -U -d / -s /bin/false abc && \
 	usermod -G users abc && \
-    apt-get clean autoclean && \
-    apt-get autoremove -y && \
-    rm -rf /tmp/* /var/lib/{apt,dpkg,cache,log}/
+    rm -rf /tmp/*
 
 ####################
 # VOLUMES
 ####################
 # Define mountable directories.
 #VOLUME /data/db /config /cloud-encrypt /cloud-decrypt /local-decrypt /local-media /chunks /log
-VOLUME /data/db /cloud-encrypt /cloud-decrypt /local-decrypt /local-media /chunks /log
+VOLUME /config /read-decrypt /cloud-decrypt /local-decrypt /local-media /local-media-edit /chunks /log
 
-
-RUN chmod -R 777 /data /log && \
-    mkdir /config
+RUN chmod -R 777 /log
 
 ####################
 # WORKING DIRECTORY
 ####################
 WORKDIR /data
-
 
 ####################
 # ENTRYPOINT

@@ -10,52 +10,52 @@
 ###############################################################################
 # FUNCTIONS
 ###############################################################################
-mount_gdrive () {
-	cloud_dir="${cloud_encrypt_dir}"
-	if [ "$(printenv ENCRYPT_MEDIA)" -eq "0" ]; then
-		cloud_dir="${cloud_decrypt_dir}"
-	fi
-
+mount_read_gdrive () {
+	check_rclone_read
+	
 	# Make sure GD mountpoint exists.
-	if [ ! -d "${cloud_dir}" ]; then
-		mkdir -p "${cloud_dir}"
+	if [ ! -d "${read_decrypt_dir}" ]; then
+		mkdir -p "${read_decrypt_dir}"
 	fi
 
-	# Make sure Plexdrive temp folder exists.
-	if [ ! -d "${plexdrive_temp_dir}" ]; then
-		mkdir -p "${plexdrive_temp_dir}"
-	fi
-
-	# Mount GD if not already mounted.
-	if [ $(ps -ef | grep "plexdrive" | grep -v "grep" | wc -l) == "0" ]; then
-		echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting Google Drive mountpoint: ${cloud_dir}"
-		plexdrive $mongo $plexdrive_options "${cloud_dir}" &
+	if [ $(ps -ef | grep "rclone" | grep -v "grep" | wc -l) == "0" ]; then
+		echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting read Google Drive: ${read_decrypt_dir}"
+		rclone mount $rclone_read_mount_options "$@" "${rclone_read_endpoint}" "${read_decrypt_dir}" &
 	else
-		echo "[ $(date $(printenv DATE_FORMAT)) ] Google Drive mountpoint: ${cloud_dir} already mounted."
+		echo "[ $(date $(printenv DATE_FORMAT)) ] Google Drive mountpoint: ${read_decrypt_dir} already mounted."
 	fi
+
 }
 
-mount_local_media () {
-	check_rclone_local
+mount_gdrive () {
+	check_rclone_cloud
 
-	# Make sure decrypted GD directory exists.
+	# Make sure GD mountpoint exists.
 	if [ ! -d "${cloud_decrypt_dir}" ]; then
 		mkdir -p "${cloud_decrypt_dir}"
 	fi
 
+	if [ $(ps -ef | grep "rclone" | grep -v "grep" | wc -l) == "1" ]; then
+		echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting direct Google Drive: ${cloud_decrypt_dir}"
+		rclone mount $rclone_mount_options "$@" "${rclone_cloud_endpoint}" "${cloud_decrypt_dir}" &
+	else
+		echo "[ $(date $(printenv DATE_FORMAT)) ] Google Drive mountpoint: ${cloud_decrypt_dir} already mounted."
+	fi
+
 	sleep 5
+
 	while [ -z "$(ls -A ${cloud_encrypt_dir})" ]
 	do
 		echo "Waiting for mount ${cloud_encrypt_dir} ..."
-		sleep 30
+		sleep 10
 	done
 
-	if [ $(ps -ef | grep "rclone" | grep -v "grep" | wc -l) == "0" ]; then
-		echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting decrypted Google Drive: ${cloud_decrypt_dir}"
-		rclone mount $rclone_mount_options "$@" "${rclone_local_endpoint}" "${cloud_decrypt_dir}" &
-	else
-		echo "[ $(date $(printenv DATE_FORMAT)) ] Decrypted mountpoint: ${cloud_decrypt_dir} already mounted."
-	fi
+	while [ -z "$(ls -A ${read_encrypt_dir})" ]
+	do
+		echo "Waiting for mount ${read_encrypt_dir} ..."
+		sleep 10
+	done
+
 }
 
 mount_union () {
@@ -68,17 +68,54 @@ mount_union () {
 		mkdir -p "${local_decrypt_dir}"
 	fi
 
-	sleep 5
+# Mount plex media directory if not already mounted.
+	# Check Union Mount Program
+	if [ "$(printenv UNION_PROGRAM)" == "UNIONFS" ]; then
+		if [ $(ps -ef | grep "unionfs" | grep -v "grep" | wc -l) == "0" ]; then
+			ufs_mounts="${local_decrypt_dir}=RW:${read_decrypt_dir}=RO"
+			echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting unionfs: ${local_media_dir}"
+			unionfs $ufs_options "${ufs_mounts}" "${local_media_dir}"
+		else
+			echo "[ $(date $(printenv DATE_FORMAT)) ] Union mountpoint: ${local_media_dir} already mounted."
+		fi
 
-	# Mount plex media directory if not already mounted.
-	if [ $(ps -ef | grep "unionfs" | grep -v "grep" | wc -l) == "0" ]; then
-		ufs_mounts="${local_decrypt_dir}=RW:${cloud_decrypt_dir}=RO"
-
-		echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting union: ${local_media_dir}"
-		unionfs $ufs_options "${ufs_mounts}" "${local_media_dir}"
-	else
-		echo "[ $(date $(printenv DATE_FORMAT)) ] Union mountpoint: ${local_media_dir} already mounted."
+		if [ $(ps -ef | grep "unionfs" | grep -v "grep" | wc -l) == "1" ]; then
+			ufs_mounts="${local_decrypt_dir}=RW:${cloud_decrypt_dir}=RW"
+			echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting edit unionfs: ${local_media_edit_dir}"
+			unionfs $ufs_options "${ufs_mounts}" "${local_media_edit_dir}"
+		else
+			echo "[ $(date $(printenv DATE_FORMAT)) ] Union mountpoint: ${local_media_edit_dir} already mounted."
+		fi
 	fi
+
+#	if [ "$(printenv UNION_PROGRAM)" == "MERGERFS" ]; then
+#		if [ $(ps -ef | grep "mergerfs" | grep -v "grep" | wc -l) == "0" ]; then
+#			mfs_mounts="${local_decrypt_dir}:${read_decrypt_dir}"
+#			echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting mergerfs: ${local_media_dir}"
+#		mergerfs $mfs_options "${mfs_mounts}" "${local_media_dir}"
+#		else
+#			echo "[ $(date $(printenv DATE_FORMAT)) ] Union mountpoint: ${local_media_dir} already mounted."
+#		fi
+#
+#		if [ $(ps -ef | grep "mergerfs" | grep -v "grep" | wc -l) == "1" ]; then
+#			mfs_edit_mounts="${local_decrypt_dir}:${read_decrypt_dir}:${cloud_decrypt_dir}"
+#			echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting edit mergerfs: ${local_media_edit_dir}"
+#			mergerfs $mfs_options "${mfs_edit_mounts}" "${local_media_edit_dir}"
+#		else
+#			echo "[ $(date $(printenv DATE_FORMAT)) ] Union mountpoint: ${local_media_edit_dir} already mounted."
+#		fi
+#	fi
+
+	if [ "$(printenv UNION_PROGRAM)" == "MERGERFS" ]; then
+		if [ $(ps -ef | grep "mergerfs" | grep -v "grep" | wc -l) == "0" ]; then
+			mfs_mounts="${local_decrypt_dir}:${read_decrypt_dir}:${cloud_decrypt_dir}"
+			echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting mergerfs: ${local_media_dir}"
+			mergerfs $mfs_options "${mfs_mounts}" "${local_media_dir}"
+		else
+			echo "[ $(date $(printenv DATE_FORMAT)) ] Union mountpoint: ${local_media_dir} already mounted."
+		fi
+	fi
+
 }
 
 ###############################################################################
@@ -86,11 +123,19 @@ mount_union () {
 if pidof -o %PPID -x "$(basename "$0")"; then
 	echo "[ $(date $(printenv DATE_FORMAT)) ] Mount already in progress. Aborting."
 else
+	mount_read_gdrive
 	mount_gdrive
-	if [ "$(printenv ENCRYPT_MEDIA)" != "0" ]; then
-		mount_local_media
-	fi
 	mount_union
+fi
+
+#Output environmental variables for cron
+env >> /etc/environment
+printf "${cloud_upload_time} cloudupload >> ${cron_log} 2>&1\n${rm_delete_time} rmlocal >> ${cron_log} 2>&1\n" >> /etc/crontabs/root
+crond -b
+
+#Precache
+if [ "$(printenv RCLONE_PRECACHE)" == "1" ]; then
+	/usr/bin/find $(printenv RCLONE_PRECACHE_DIR)
 fi
 
 exit 0
