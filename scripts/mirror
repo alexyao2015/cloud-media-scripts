@@ -1,0 +1,4 @@
+#!/bin/bash
+. "/usr/bin/variables"
+
+mirror.script "$@" 2>&1 | tee -a "${log_dir}/mirror.log"

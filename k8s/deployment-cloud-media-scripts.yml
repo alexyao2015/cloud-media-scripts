@@ -42,8 +42,6 @@ spec:
             #   value: 45G
             - name: CLEAR_CHUNK_AGE
               value: 24h
-            - name: MONGO_DATABASE
-              value: plexdrive
             - name: DATE_FORMAT
               value: '+%F@%T'
             - name: REMOVE_LOCAL_FILES_BASED_ON
@@ -59,7 +57,7 @@ spec:
             # - name: PUID
             #   value: '911'
             # - name: PGID
-            #   value: '911'         
+            #   value: '911'
           imagePullPolicy: "Always"
           securityContext:
             privileged: true
@@ -94,15 +92,15 @@ spec:
             path: /srv/cloud/local-decrypt
         # - name: conf-volume
         #   persistentVolumeClaim:
-        #     claimName: cloud-media-scripts-conf  
+        #     claimName: cloud-media-scripts-conf
         - name: chunks-volume
           persistentVolumeClaim:
             claimName: cloud-media-scripts-chunks
         - name: logs-volume
           persistentVolumeClaim:
-            claimName: cloud-media-scripts-logs    
+            claimName: cloud-media-scripts-logs
         - name: config
           secret:
-            secretName: cloud-media-scripts-secrets        
+            secretName: cloud-media-scripts-secrets
       nodeSelector:
         label: "value"

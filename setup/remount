@@ -8,7 +8,7 @@ if [ -z "$(ls -A ${cloud_decrypt_dir})" ] || [ $(ps -ef | grep "unionfs" | grep 
     fusermount -uz "${cloud_decrypt_dir}"
     fusermount -uz "${local_decrypt_dir}"
     fusermount -uz "${local_media_dir}"
-    
+
     echo "[ $(date $(printenv DATE_FORMAT)) ] Unmounted successfully"
     echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting..."
     mount

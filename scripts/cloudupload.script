@@ -35,7 +35,7 @@ find "${local_decrypt_dir}" -type f -print0 | xargs -0 stat --format '%Y :%y %n'
 			(*.unionfs-fuse*) continue ;;
 			(*.DS_STORE) continue ;;
 		esac
-		
+
 		if [ -f "${cloud_decrypt_dir}${filename}" ]; then
                         continue
                 fi
@@ -50,7 +50,7 @@ find "${local_decrypt_dir}" -type f -print0 | xargs -0 stat --format '%Y :%y %n'
 
 		# Copy file to remote destination[s], retaining path
  		rclone copy $rclone_options "$@" "$n" "${rclone_cloud_endpoint}${destpath}" >/dev/null 2>&1
-		
+
 		fileSize=$(du -sb "$n" | awk '{print $1}')
                 addedSize=$((addedSize + fileSize))
 

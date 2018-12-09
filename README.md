@@ -1,3 +1,7 @@
+New Variables for Cron
+DISABLE - 0 0 31 2 0
+CLOUDUPLOADTIME="0 7 * * *"
+RMDELETETIME="0 12 * * *"
 # Usage
 
 Default settings use ~100GB for local media, remove atleast 80 GB and Plexdrive chunks and cache are removed after 24 hours:
@@ -10,7 +14,7 @@ docker create \
 	-v /mnt/external/plexdrive:/chunks \
 	-v /logs:/log \
 	--privileged --cap-add=MKNOD --cap-add=SYS_ADMIN --device=/dev/fuse \
-	madslundt/cloud-media-scripts
+	peet2k17/cloud-media-scripts
 ```
 
 If you have more space you can increase `REMOVE_LOCAL_FILES_WHEN_SPACE_EXCEEDS_GB`, `FREEUP_ATLEAST_GB` and either increase `CLEAR_CHUNK_AGE` or add `CLEAR_CHUNK_MAX_SIZE`.
@@ -28,7 +32,7 @@ docker create \
 	-e REMOVE_LOCAL_FILES_WHEN_SPACE_EXCEEDS_GB="2000" \
 	-e FREEUP_ATLEAST_GB="1000" \
 	--privileged --cap-add=MKNOD --cap-add=SYS_ADMIN --device=/dev/fuse \
-	madslundt/cloud-media-scripts
+	peet2k17/cloud-media-scripts
 ```
 
 
@@ -47,7 +51,6 @@ Volumes:
 * `-v /local-decrypt` - Local files stored on disk - Append **:shared**
 * `-v /config` - Rclone and plexdrive configurations
 * `-v /chunks` - Plexdrive cache chunks
-* `-v /data/db` - MongoDB database
 * `-v /log` - Log files from mount, cloudupload and rmlocal
 * `-v /cloud-encrypt` - Cloud files encrypted synced with Plexdrive. This is empty if `ENCRYPT_MEDIA` is 0. - Append **:shared**
 * `-v /cloud-decrypt` - Cloud files decrypted with Rclone - Append **:shared**
@@ -62,7 +65,6 @@ Environment variables:
 * `-e CHUNK_SIZE` - Plexdrive: The size of each chunk that is downloaded (default **10M**)
 * `-e CLEAR_CHUNK_MAX_SIZE` - Plexdrive: The maximum size of the temporary chunk directory (empty as default)
 * `-e CLEAR_CHUNK_AGE` - Plexdrive: The maximum age of a cached chunk file (default **24h**) - this is ignored if `CLEAR_CHUNK_MAX_SIZE` is set
-* `-e MONGO_DATABASE` - Mongo database used for Plexdrive (default **plexdrive**)
 * `-e DATE_FORMAT` - Date format for loggin (default **+%F@%T**)
 * `-e REMOVE_LOCAL_FILES_BASED_ON` - Remove local files based on `space`, `time` or `instant` (default **space**)
 * `-e REMOVE_LOCAL_FILES_WHEN_SPACE_EXCEEDS_GB` - Remove local files when local storage exceeds this value in GB (default **100**) - this is ignored if `REMOVE_LOCAL_FILES_BASED_ON` is set to time or instant
@@ -139,7 +141,7 @@ Rclone documentation if needed [click here](https://rclone.org/docs/)
 ## Plexdrive
 Setup Plexdrive to the cloud. Run the command `docker exec -ti <DOCKER_CONTAINER> plexdrive_setup`
 
-Plexdrive documentation if needed [click here](https://github.com/dweidenfeld/plexdrive/tree/4.0.0)
+Plexdrive documentation if needed [click here](https://github.com/dweidenfeld/plexdrive/tree/5.0.0)
 
 # Commands
 Upload local files to cloud run: `docker exec <DOCKER_CONTAINER> cloudupload`
@@ -225,7 +227,7 @@ The reason for these permissions are that when writing to the local folder (`/lo
 `docker run --name cloud-media-scripts -d cloud-media-scripts`
 
 
-If you want to support the project or just buy me a beer I accept Paypal and bitcoins.
+If you want to support the project or just buy madslundt a beer He accepts Paypal and bitcoins.
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/madslundt)
 

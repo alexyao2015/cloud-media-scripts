@@ -29,7 +29,7 @@ mount_gdrive () {
 	# Mount GD if not already mounted.
 	if [ $(ps -ef | grep "plexdrive" | grep -v "grep" | wc -l) == "0" ]; then
 		echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting Google Drive mountpoint: ${cloud_dir}"
-		plexdrive $mongo $plexdrive_options "${cloud_dir}" &
+		plexdrive $plexdrive_options "${cloud_dir}" &
 	else
 		echo "[ $(date $(printenv DATE_FORMAT)) ] Google Drive mountpoint: ${cloud_dir} already mounted."
 	fi
@@ -71,15 +71,35 @@ mount_union () {
 	sleep 5
 
 	# Mount plex media directory if not already mounted.
-	if [ $(ps -ef | grep "unionfs" | grep -v "grep" | wc -l) == "0" ]; then
-		ufs_mounts="${local_decrypt_dir}=RW:${cloud_decrypt_dir}=RO"
+	# Check Union Mount Program
+	if [ "$(printenv UNION_PROGRAM)" == "UNIONFS" ]; then
+		if [ $(ps -ef | grep "unionfs" | grep -v "grep" | wc -l) == "0" ]; then
+			ufs_mounts="${local_decrypt_dir}=RW:${cloud_decrypt_dir}=RO"
+			echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting union: ${local_media_dir}"
+			unionfs $ufs_options "${ufs_mounts}" "${local_media_dir}"
+		else
+			echo "[ $(date $(printenv DATE_FORMAT)) ] Union mountpoint: ${local_media_dir} already mounted."
+		fi
+		else
+			echo "Not mounting UnionFS"
+	fi
 
-		echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting union: ${local_media_dir}"
-		unionfs $ufs_options "${ufs_mounts}" "${local_media_dir}"
-	else
-		echo "[ $(date $(printenv DATE_FORMAT)) ] Union mountpoint: ${local_media_dir} already mounted."
+	if [ "$(printenv UNION_PROGRAM)" == "MERGERFS" ]; then
+		if [ $(ps -ef | grep "mergerfs" | grep -v "grep" | wc -l) == "0" ]; then
+			mfs_mounts="${local_decrypt_dir}:${cloud_decrypt_dir}"
+			echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting union: ${local_media_dir}"
+			mergerfs $mfs_options "${mfs_mounts}" "${local_media_dir}"
+		else
+			echo "[ $(date $(printenv DATE_FORMAT)) ] Union mountpoint: ${local_media_dir} already mounted."
+		fi
+		else
+			echo "Not mounting MergerFS"
 	fi
 }
+
+#echo "[ $(date ${date_format}) ] Mounting final library with MergerFS in mountpoint: ${local_media_dir}"
+#{}"${mfs_bin}" $mfs_options "${mfs_mounts}" "${local_media_dir}"
+#echo "[ $(date ${date_format}) ] Mounted successfully with MergerFS"
 
 ###############################################################################
 
@@ -90,7 +110,15 @@ else
 	if [ "$(printenv ENCRYPT_MEDIA)" != "0" ]; then
 		mount_local_media
 	fi
-	mount_union
+	if [ "$(printenv UNION_ENABLED)" != "0" ]; then
+		mount_union
+	fi
 fi
+
+#Output environmental variables for cron
+env >> /etc/environment
+printf "${cloud_upload_time} cloudupload >> ${cron_log} 2>&1\n${rm_delete_time} rmlocal >> ${cron_log} 2>&1\n" > /etc/cron.d/upload
+chmod 0644 /etc/cron.d/upload
+crontab /etc/cron.d/upload
 
 exit 0
