@@ -118,6 +118,26 @@ mount_union () {
 
 }
 
+install_cron () {
+
+	#Output environmental variables for cron
+	env >> /etc/environment
+	printf "${cloud_upload_time} cloudupload >> ${cron_log} 2>&1\n${rm_delete_time} rmlocal >> ${cron_log} 2>&1\n" >> /etc/crontabs/root
+	crond -b
+
+}
+
+precache () {
+	#Precache
+	if ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_PRECACHE_METHOD)" == "FIND" ]) || ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_READ_TYPE)" == "CACHE" ]); then
+		/usr/bin/find $(printenv RCLONE_PRECACHE_DIR)
+	fi
+
+	if ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_PRECACHE_METHOD)" == "VFS" ]) || ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]); then
+		rclone rc vfs/refresh recursive=true
+	fi
+}
+
 ###############################################################################
 
 if pidof -o %PPID -x "$(basename "$0")"; then
@@ -126,20 +146,8 @@ else
 	mount_read_gdrive
 	mount_gdrive
 	mount_union
-fi
-
-#Output environmental variables for cron
-env >> /etc/environment
-printf "${cloud_upload_time} cloudupload >> ${cron_log} 2>&1\n${rm_delete_time} rmlocal >> ${cron_log} 2>&1\n" >> /etc/crontabs/root
-crond -b
-
-#Precache
-if [ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_READ_TYPE)" == "CACHE" ]; then
-	/usr/bin/find $(printenv RCLONE_PRECACHE_DIR)
-fi
-
-if [ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]; then
-	rclone rc vfs/refresh recursive=true
+	install_cron
+	precache
 fi
 
 exit 0

@@ -76,6 +76,8 @@ ENV RCLONE_VFS_READ_OPTIONS "--allow-other --buffer-size=2048M --dir-cache-time=
 ENV RCLONE_CLOUD_OPTIONS "--dir-cache-time=70h"
 ENV RCLONE_PRECACHE "1"
 ENV RCLONE_PRECACHE_DIR "/local-media"
+ENV RCLONE_PRECACHE_METHOD ""
+#or VFS or FIND
 ENV RCLONE_READ_MANUAL_ENDPOINT ""
 
 # Rclone Mirror Settings
