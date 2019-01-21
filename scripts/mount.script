@@ -134,8 +134,12 @@ printf "${cloud_upload_time} cloudupload >> ${cron_log} 2>&1\n${rm_delete_time} 
 crond -b
 
 #Precache
-if [ "$(printenv RCLONE_PRECACHE)" == "1" ]; then
+if [ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_READ_TYPE)" == "CACHE" ]; then
 	/usr/bin/find $(printenv RCLONE_PRECACHE_DIR)
+fi
+
+if [ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]; then
+	rclone rc vfs/refresh recursive=true
 fi
 
 exit 0
