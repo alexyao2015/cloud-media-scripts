@@ -72,7 +72,8 @@ ENV RCLONE_MASK "000"
 ENV RCLONE_READ_TYPE "VFS"
 #OR CACHE
 ENV RCLONE_CACHE_READ_OPTIONS "--local-no-check-updated --buffer-size=0 --cache-chunk-size=5M --cache-info-age=28h --cache-read-retries=3 --cache-chunk-total-size=3G --cache-workers=10 --contimeout=5s --dir-cache-time=24h --max-read-ahead=128k --transfers=3 --tpslimit=8 --timeout=5s --track-renames -vv"
-ENV RCLONE_VFS_READ_OPTIONS "--allow-other --buffer-size=2048M --dir-cache-time=72h --drive-chunk-size=256M --vfs-read-chunk-size=256M --vfs-read-chunk-size-limit=0 --transfers=10 --drive-v2-download-min-size=0 --rc --tpslimit=8 -vv"
+#ENV RCLONE_VFS_READ_OPTIONS "--allow-other --buffer-size=2048M --dir-cache-time=72h --drive-chunk-size=256M --vfs-read-chunk-size=256M --vfs-read-chunk-size-limit=0 --transfers=10 --drive-v2-download-min-size=0 --rc --tpslimit=8 -vv"
+ENV RCLONE_VFS_READ_OPTIONS "--allow-other --buffer-size=2048M --dir-cache-time=72h --drive-chunk-size=256M --vfs-read-chunk-size=256M --vfs-read-chunk-size-limit=0 --transfers=10 --rc --tpslimit=5 -vv"
 ENV RCLONE_CLOUD_OPTIONS "--dir-cache-time=70h"
 ENV RCLONE_PRECACHE "1"
 ENV RCLONE_PRECACHE_DIR "/local-media"
@@ -103,8 +104,8 @@ ENV PLEX_URL ""
 ENV PLEX_TOKEN ""
 
 #cron
-ENV CLOUDUPLOADTIME "0 1 * * *"
-ENV RMDELETETIME "0 6 * * *"
+ENV CLOUDUPLOADTIME "30 1 * * *"
+ENV RMDELETETIME "30 6 * * *"
 
 # Union Mount MERGERFS OR UNIONFS
 ENV UNION_PROGRAM "MERGERFS"
