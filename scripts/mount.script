@@ -122,7 +122,8 @@ install_cron () {
 
 	#Output environmental variables for cron
 	env >> /etc/environment
-	printf "${cloud_upload_time} cloudupload >> ${cron_log} 2>&1\n${rm_delete_time} rmlocal >> ${cron_log} 2>&1\n" >> /etc/crontabs/root
+	echo "${cloud_upload_time} cloudupload >> ${cron_log} 2>&1" >> /etc/crontabs/root
+	echo "${rm_delete_time} rmlocal >> ${cron_log} 2>&1" >> /etc/crontabs/root
 	crond -b
 
 }
