@@ -18,14 +18,14 @@ rclone_mirror_options="${rclone_config} --exclude-from=${rclone_exclude_file} --
 rclone_mount_options="${rclone_options} --allow-non-empty --allow-other --uid ${_puid:-911} --gid ${_pgid:-911} --umask $(printenv RCLONE_MASK)"
 
 rclone_read_mount_options="${rclone_mount_options} --read-only"
-rclone_mount_options="${rclone_mount_options} $(printenv RCLONE_CLOUD_OPTIONS)"
+rclone_mount_options="${rclone_mount_options} $(printenv RCLONE_CLOUD_OPTIONS) $(printenv RCLONE_CLOUD_OPTIONS_CACHING)"
 
 if [ "$(printenv RCLONE_READ_TYPE)" == "CACHE" ]; then
     rclone_read_mount_options="${rclone_read_mount_options} --cache-db-path=/chunks/cache.db --cache-dir=/chunks/vfs --cache-chunk-path=/chunks $(printenv RCLONE_CACHE_READ_OPTIONS)"
 fi
 
 if [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]; then
-    rclone_read_mount_options="${rclone_read_mount_options} $(printenv RCLONE_VFS_READ_OPTIONS)"
+    rclone_read_mount_options="${rclone_read_mount_options} $(printenv RCLONE_VFS_READ_OPTIONS) $(printenv RCLONE_VFS_READ_OPTIONS_CACHING)"
 fi
 
 ufs_options="-o uid=${_puid:-911} -o gid=${_pgid:-911} -o cow,allow_other,direct_io,nonempty,auto_cache,sync_read"
