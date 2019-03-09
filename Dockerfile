@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-ENV RCLONE_VERSION="v1.45"
+ENV RCLONE_VERSION="v1.46"
 ENV RCLONE_RELEASE="rclone-${RCLONE_VERSION}-linux-amd64"
 ENV RCLONE_ZIP="${RCLONE_RELEASE}.zip"
 ENV RCLONE_URL="https://github.com/ncw/rclone/releases/download/${RCLONE_VERSION}/${RCLONE_ZIP}"
