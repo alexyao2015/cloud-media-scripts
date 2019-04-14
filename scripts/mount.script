@@ -44,15 +44,15 @@ mount_gdrive () {
 
 	sleep 5
 
-	while [ -z "$(ls -A ${cloud_encrypt_dir})" ]
+	while [ -z "$(ls -A ${cloud_decrypt_dir})" ]
 	do
-		echo "Waiting for mount ${cloud_encrypt_dir} ..."
+		echo "Waiting for mount ${cloud_decrypt_dir} ..."
 		sleep 10
 	done
 
-	while [ -z "$(ls -A ${read_encrypt_dir})" ]
+	while [ -z "$(ls -A ${read_decrypt_dir})" ]
 	do
-		echo "Waiting for mount ${read_encrypt_dir} ..."
+		echo "Waiting for mount ${read_decrypt_dir} ..."
 		sleep 10
 	done
 
@@ -108,7 +108,8 @@ mount_union () {
 
 	if [ "$(printenv UNION_PROGRAM)" == "MERGERFS" ]; then
 		if [ $(ps -ef | grep "mergerfs" | grep -v "grep" | wc -l) == "0" ]; then
-			mfs_mounts="${local_decrypt_dir}:${read_decrypt_dir}:${cloud_decrypt_dir}"
+			#mfs_mounts="${local_decrypt_dir}:${read_decrypt_dir}:${cloud_decrypt_dir}"
+			mfs_mounts="${local_decrypt_dir}:${read_decrypt_dir}"
 			echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting mergerfs: ${local_media_dir}"
 			mergerfs $mfs_options "${mfs_mounts}" "${local_media_dir}"
 		else
@@ -138,10 +139,10 @@ precache () {
 	if ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_PRECACHE_METHOD)" == "VFS" ]) || ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]); then
 		if [[ "${vfs_precache_dir}" == "" ]]; then
 			rclone rc ${rc_read_url} vfs/refresh recursive=true
-			rclone rc ${rc_direct_url} vfs/refresh recursive=true
+#			rclone rc ${rc_direct_url} vfs/refresh recursive=true
 		else
 			rclone rc ${rc_read_url} vfs/refresh dir="${vfs_precache_dir}" recursive=true
-			rclone rc ${rc_direct_url} vfs/refresh dir="${vfs_precache_dir}" recursive=true
+#			rclone rc ${rc_direct_url} vfs/refresh dir="${vfs_precache_dir}" recursive=true
 		fi
 	fi
 }
@@ -152,9 +153,10 @@ if pidof -o %PPID -x "$(basename "$0")"; then
 	echo "[ $(date $(printenv DATE_FORMAT)) ] Mount already in progress. Aborting."
 else
 	mount_read_gdrive
-	mount_gdrive
+#	mount_gdrive
 	mount_union
 	install_cron
+	sleep 2
 	precache
 fi
 

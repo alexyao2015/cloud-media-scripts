@@ -18,7 +18,8 @@ rclone_mirror_options="${rclone_config} --exclude-from=${rclone_exclude_file} --
 rclone_dedupe_options="${rclone_config} --dedupe-mode rename --tpslimit $(printenv DEDUPE_TPS_LIMIT) -vv"
 rclone_mount_options="${rclone_config} --allow-other --uid ${_puid:-911} --gid ${_pgid:-911} --umask $(printenv RCLONE_MASK)"
 
-rclone_read_mount_options="${rclone_mount_options} --read-only"
+#rclone_read_mount_options="${rclone_mount_options} --read-only"
+rclone_read_mount_options="${rclone_mount_options}"
 rclone_mount_options="${rclone_mount_options} $(printenv RCLONE_CLOUD_OPTIONS) $(printenv RCLONE_CLOUD_OPTIONS_CACHING)"
 
 if [ "$(printenv RCLONE_READ_TYPE)" == "CACHE" ]; then
