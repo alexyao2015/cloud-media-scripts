@@ -124,6 +124,7 @@ install_cron () {
 	env >> /etc/environment
 	echo "${cloud_upload_time} cloudupload >> ${cron_log} 2>&1" >> /etc/crontabs/root
 	echo "${rm_delete_time} rmlocal >> ${cron_log} 2>&1" >> /etc/crontabs/root
+	echo "${dedupe_time} dedupe >> ${cron_log} 2>&1" >> /etc/crontabs/root
 	crond -b
 
 }

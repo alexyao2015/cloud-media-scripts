@@ -1,0 +1,23 @@
+#!/bin/bash
+###############################################################################
+# CONFIGURATION
+###############################################################################
+# shellcheck source=config
+
+. "/usr/bin/config"
+##############################################################################
+
+# If script is already running; abort.
+if pidof -o %PPID -x "$(basename "$0")"; then
+	echo "[ $(date $(printenv DATE_FORMAT)) ] Dedupe already in progress. Aborting."
+	exit 3
+fi
+
+check_rclone_cloud
+
+# Dedupe Google Drive with defined location
+echo "[ $(date $(printenv DATE_FORMAT)) ] Deduping Google Drive at $(printenv DEDUPE_ROOT)"
+rclone dedupe $(printenv DEDUPE_ROOT) >/dev/null 2>&1
+
+# success!
+exit 0
