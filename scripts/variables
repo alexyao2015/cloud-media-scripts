@@ -70,3 +70,5 @@ dedupe_time=$(printenv DEDUPE_TIME)
 cron_log=/log/cron.log
 
 vfs_precache_dir=$(printenv RCLONE_VFS_PRECACHE_DIR)
+rc_read_url="--url http://localhost:5572/"
+rc_direct_url="--url http://localhost:5573/"

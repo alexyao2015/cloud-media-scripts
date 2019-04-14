@@ -137,9 +137,11 @@ precache () {
 
 	if ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_PRECACHE_METHOD)" == "VFS" ]) || ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]); then
 		if [[ "${vfs_precache_dir}" == "" ]]; then
-			rclone rc vfs/refresh recursive=true
+			rclone rc ${rc_read_url} vfs/refresh recursive=true
+			rclone rc ${rc_direct_url} vfs/refresh recursive=true
 		else
-			rclone rc vfs/refresh dir="${vfs_precache_dir}" recursive=true
+			rclone rc ${rc_read_url} vfs/refresh dir="${vfs_precache_dir}" recursive=true
+			rclone rc ${rc_direct_url} vfs/refresh dir="${vfs_precache_dir}" recursive=true
 		fi
 	fi
 }
