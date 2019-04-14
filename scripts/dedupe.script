@@ -17,7 +17,7 @@ check_rclone_cloud
 
 # Dedupe Google Drive with defined location
 echo "[ $(date $(printenv DATE_FORMAT)) ] Deduping Google Drive at $(printenv DEDUPE_ROOT)"
-rclone dedupe $(printenv DEDUPE_ROOT) >/dev/null 2>&1
+rclone dedupe --dedupe-mode largest $(printenv DEDUPE_ROOT) >/dev/null 2>&1
 
 # success!
 exit 0
