@@ -13,7 +13,8 @@ local_media_edit_dir="/local-media-edit"
 
 rclone_config="--config=/config/rclone.conf"
 rclone_exclude_file="/config/exclude.txt"
-rclone_options="${rclone_config} --buffer-size $(printenv COPY_BUFFER_SIZE) --checkers $(printenv COPY_CHECKERS)"
+#rclone_options="${rclone_config} --buffer-size $(printenv COPY_BUFFER_SIZE) --checkers $(printenv COPY_CHECKERS)"
+rclone_options="${rclone_config} --drive-chunk-size $(printenv COPY_DRIVE_CHUNK_SIZE) --checkers $(printenv COPY_CHECKERS) --transfers $(printenv COPY_TRANSFERS)"
 rclone_mirror_options="${rclone_config} --exclude-from=${rclone_exclude_file} --transfers $(printenv MIRROR_TRANSFERS) --bwlimit $(printenv MIRROR_BWLIMIT) --tpslimit $(printenv MIRROR_TPS_LIMIT) --tpslimit-burst $(printenv MIRROR_TPS_LIMIT_BURST)"
 rclone_dedupe_options="${rclone_config} --dedupe-mode rename --tpslimit $(printenv DEDUPE_TPS_LIMIT) -vv"
 rclone_mount_options="${rclone_config} --allow-other --uid ${_puid:-911} --gid ${_pgid:-911} --umask $(printenv RCLONE_MASK)"
@@ -70,6 +71,24 @@ rm_delete_time=$(printenv RMDELETE_TIME)
 dedupe_time=$(printenv DEDUPE_TIME)
 cron_log=/log/cron.log
 
+if [ "$(printenv RCLONE_CLOUDUPLOAD_LOG)" == "" ]; then
+    rclone_cloudupload_log="/dev/null"
+else
+	rclone_cloudupload_log="${log_dir}/$(printenv RCLONE_CLOUDUPLOAD_LOG)"
+fi
+
+if [ "$(printenv RCLONE_RMLOCAL_LOG)" == "" ]; then
+    rclone_rmlocal_log="/dev/null"
+else
+	rclone_rmlocal_log="${log_dir}/$(printenv RCLONE_RMLOCAL_LOG)"
+fi
+
+if [ "$(printenv RCLONE_DEDUPE_LOG)" == "" ]; then
+    rclone_dedupe_log="/dev/null"
+else
+	rclone_dedupe_log="${log_dir}/$(printenv RCLONE_DEDUPE_LOG)"
+fi
+
 vfs_precache_dir=$(printenv RCLONE_VFS_PRECACHE_DIR)
 rc_read_url="--url http://localhost:5572/"
-rc_direct_url="--url http://localhost:5573/"
+#rc_direct_url="--url http://localhost:5573/"

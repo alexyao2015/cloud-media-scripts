@@ -63,8 +63,10 @@ RUN apk del \
 ####################
 
 # Rclone
-ENV COPY_BUFFER_SIZE "512M"
-ENV COPY_CHECKERS "16"
+#ENV COPY_BUFFER_SIZE "512M"
+ENV COPY_CHECKERS "4"
+ENV COPY_TRANSFERS "4"
+ENV COPY_DRIVE_CHUNK_SIZE "32M"
 ENV RCLONE_CLOUD_ENDPOINT "direct-decrypt:"
 ENV RCLONE_CACHE_ENDPOINT "cache-decrypt:"
 ENV RCLONE_LOCAL_ENDPOINT "local-decrypt:"
@@ -74,7 +76,7 @@ ENV RCLONE_READ_TYPE "VFS"
 ENV RCLONE_CACHE_READ_OPTIONS "--local-no-check-updated --buffer-size=0 --cache-chunk-size=5M --cache-info-age=28h --cache-read-retries=3 --cache-chunk-total-size=3G --cache-workers=10 --contimeout=5s --dir-cache-time=24h --max-read-ahead=128k --transfers=3 --tpslimit=8 --timeout=5s --track-renames -vv"
 #ENV RCLONE_VFS_READ_OPTIONS "--allow-other --buffer-size=2048M --dir-cache-time=72h --drive-chunk-size=256M --vfs-read-chunk-size=256M --vfs-read-chunk-size-limit=0 --transfers=10 --drive-v2-download-min-size=0 --rc --tpslimit=8 -vv"
 #ENV RCLONE_VFS_READ_OPTIONS "--buffer-size=2048M --drive-chunk-size=256M --vfs-read-chunk-size=256M --vfs-read-chunk-size-limit=0 --rc --tpslimit=5 -vv"
-ENV RCLONE_VFS_READ_OPTIONS "--buffer-size=2048M --drive-chunk-size=256M --timeout=1h --tpslimit=1750 -vv"
+ENV RCLONE_VFS_READ_OPTIONS "--buffer-size=2048M --timeout=1h --tpslimit=1750 -vv"
 ENV RCLONE_VFS_READ_OPTIONS_CACHING "--dir-cache-time=72h --poll-interval=60s --rc --rc-addr=:5572"
 #ENV RCLONE_CLOUD_OPTIONS "-vv --tpslimit=1750"
 #ENV RCLONE_CLOUD_OPTIONS_CACHING "--dir-cache-time=74h --poll-interval=60s --rc --rc-addr=:5573"
@@ -85,6 +87,11 @@ ENV RCLONE_PRECACHE_METHOD ""
 ENV RCLONE_VFS_PRECACHE_DIR ""
 #or VFS or FIND
 ENV RCLONE_READ_MANUAL_ENDPOINT ""
+
+#Log files, blank for no log output
+ENV RCLONE_CLOUDUPLOAD_LOG "rcloneupload.log"
+ENV RCLONE_RMLOCAL_LOG "rclonermlocal.log"
+ENV RCLONE_DEDUPE_LOG "rclonededupe.log"
 
 # Rclone Mirror Settings
 ENV MIRROR_MEDIA "0"
