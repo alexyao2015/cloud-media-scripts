@@ -88,11 +88,6 @@ ENV RCLONE_VFS_PRECACHE_DIR ""
 #or VFS or FIND
 ENV RCLONE_READ_MANUAL_ENDPOINT ""
 
-#Log files, blank for no log output
-ENV RCLONE_CLOUDUPLOAD_LOG "rcloneupload.log"
-ENV RCLONE_RMLOCAL_LOG "rclonermlocal.log"
-ENV RCLONE_DEDUPE_LOG "rclonededupe.log"
-
 # Rclone Mirror Settings
 ENV MIRROR_MEDIA "0"
 ENV RCLONE_MIRROR_ENDPOINT "gdm-crypt:"

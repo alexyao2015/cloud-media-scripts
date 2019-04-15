@@ -16,9 +16,11 @@ fi
 check_rclone_cloud
 
 # Dedupe Google Drive with defined location
+echo "[ $(date $(printenv DATE_FORMAT)) ] ###### Begin Dedupe ######"
 echo "[ $(date $(printenv DATE_FORMAT)) ] Deduping Google Drive at $(printenv DEDUPE_ROOT)"
 rclone dedupe $rclone_dedupe_options "${rclone_dedupe_root}"
 echo "[ $(date $(printenv DATE_FORMAT)) ] Deduping Google Drive at $(printenv DEDUPE_ROOT) Complete"
+echo "[ $(date $(printenv DATE_FORMAT)) ] ###### Dedupe Completed ######"
 
 # success!
 exit 0

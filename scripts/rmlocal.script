@@ -113,6 +113,7 @@ rm_space () {
 	currentSize="$(du -sb "$local_decrypt_dir" | awk '{print $1}')"
 	if [ "$maxSize" -gt "$currentSize" ]; then
 			echo "Current size of $(($currentSize / 1000 / 1000 / 1000)) GB has not exceeded $REMOVE_LOCAL_FILES_WHEN_SPACE_EXCEEDS_GB GB"
+			echo "[ $(date $(printenv DATE_FORMAT)) ] ###### rmlocal Completed ######"
 			exit 02
 	fi
 
@@ -179,15 +180,21 @@ fi
 
 check_rclone_cloud
 
+echo "[ $(date $(printenv DATE_FORMAT)) ] ###### Begin rmlocal ######"
+
 echo "Removing files based on ${REMOVE_LOCAL_FILES_BASED_ON}"
 
 if [ "$REMOVE_LOCAL_FILES_BASED_ON" = "space" ]; then
 	rm_space
+	echo "[ $(date $(printenv DATE_FORMAT)) ] ###### rmlocal Completed ######"
 elif [ "$REMOVE_LOCAL_FILES_BASED_ON" = "time" ]; then
 	rm_time
+	echo "[ $(date $(printenv DATE_FORMAT)) ] ###### rmlocal Completed ######"
 elif [ "$REMOVE_LOCAL_FILES_BASED_ON" = "instant" ]; then
 	rm_instant
+	echo "[ $(date $(printenv DATE_FORMAT)) ] ###### rmlocal Completed ######"
 else
 	echo "[ $(date $(printenv DATE_FORMAT)) ] no option to remove old files"
+	echo "[ $(date $(printenv DATE_FORMAT)) ] ###### rmlocal Completed ######"
 	exit 02
 fi
