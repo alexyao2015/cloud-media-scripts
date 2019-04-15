@@ -16,7 +16,7 @@ rclone_exclude_file="/config/exclude.txt"
 #rclone_options="${rclone_config} --buffer-size $(printenv COPY_BUFFER_SIZE) --checkers $(printenv COPY_CHECKERS)"
 rclone_options="${rclone_config} --drive-chunk-size $(printenv COPY_DRIVE_CHUNK_SIZE) --checkers $(printenv COPY_CHECKERS) --transfers $(printenv COPY_TRANSFERS)"
 rclone_mirror_options="${rclone_config} --exclude-from=${rclone_exclude_file} --transfers $(printenv MIRROR_TRANSFERS) --bwlimit $(printenv MIRROR_BWLIMIT) --tpslimit $(printenv MIRROR_TPS_LIMIT) --tpslimit-burst $(printenv MIRROR_TPS_LIMIT_BURST)"
-rclone_dedupe_options="${rclone_config} --dedupe-mode rename --tpslimit $(printenv DEDUPE_TPS_LIMIT) -vv"
+rclone_dedupe_options="${rclone_config} --dedupe-mode $(printenv DEDUPE_MODE) --tpslimit $(printenv DEDUPE_TPS_LIMIT) -vv"
 rclone_mount_options="${rclone_config} --allow-other --uid ${_puid:-911} --gid ${_pgid:-911} --umask $(printenv RCLONE_MASK)"
 
 #rclone_read_mount_options="${rclone_mount_options} --read-only"
@@ -38,6 +38,7 @@ mfs_options="-o uid=${_puid:-911} -o gid=${_pgid:-911} -o $(printenv MERGERFS_OP
 
 rclone_cloud_endpoint=$(printenv RCLONE_CLOUD_ENDPOINT | tr -d '"' | tr -d "'")
 rclone_local_endpoint=$(printenv RCLONE_LOCAL_ENDPOINT | tr -d '"' | tr -d "'")
+rclone_dedupe_root=$(printenv DEDUPE_ROOT)
 
 if [ "$(printenv RCLONE_READ_TYPE)" == "CACHE" ]; then
     rclone_read_endpoint=$(printenv RCLONE_CACHE_ENDPOINT | tr -d '"' | tr -d "'")

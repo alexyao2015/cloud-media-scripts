@@ -52,7 +52,7 @@ find "${local_decrypt_dir}" -type f -print0 | xargs -0 stat --format '%Y :%y %n'
 		# Copy file to remote destination[s], retaining path
 		echo "[ $(date $(printenv DATE_FORMAT)) ] Uploading File: ${cloud_decrypt_dir}${filename} to: ${rclone_cloud_endpoint}${destpath}"
 
- 		rclone copy $rclone_options "$@" "$n" "${rclone_cloud_endpoint}${destpath}" 2>&1 | tee -a "$rclone_cloudupload_log"
+ 		rclone copy $rclone_options "$@" "$n" "${rclone_cloud_endpoint}${destpath}"
 
 		fileSize=$(du -sb "$n" | awk '{print $1}')
                 addedSize=$((addedSize + fileSize))
