@@ -156,7 +156,7 @@ else
 #	mount_gdrive
 	mount_union
 	install_cron
-	sleep 2
+	sleep 5
 	precache
 fi
 
