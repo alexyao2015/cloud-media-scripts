@@ -5,11 +5,6 @@ ENV RCLONE_RELEASE="rclone-${RCLONE_VERSION}-linux-amd64"
 ENV RCLONE_ZIP="${RCLONE_RELEASE}.zip"
 ENV RCLONE_URL="https://github.com/ncw/rclone/releases/download/${RCLONE_VERSION}/${RCLONE_ZIP}"
 
-#ENV RCLONE_VERSION="current"
-#ENV RCLONE_RELEASE="rclone-${RCLONE_VERSION}-linux-amd64"
-#ENV RCLONE_ZIP="${RCLONE_RELEASE}.zip"
-#ENV RCLONE_URL="https://downloads.rclone.org/${RCLONE_ZIP}"
-
 # dependencies
 ENV DEPS \
     bash \
@@ -63,7 +58,6 @@ RUN apk del \
 ####################
 
 # Rclone
-#ENV COPY_BUFFER_SIZE "512M"
 ENV COPY_CHECKERS "4"
 ENV COPY_TRANSFERS "4"
 ENV COPY_DRIVE_CHUNK_SIZE "32M"
@@ -74,12 +68,8 @@ ENV RCLONE_MASK "000"
 ENV RCLONE_READ_TYPE "VFS"
 #OR CACHE
 ENV RCLONE_CACHE_READ_OPTIONS "--local-no-check-updated --buffer-size=0 --cache-chunk-size=5M --cache-info-age=28h --cache-read-retries=3 --cache-chunk-total-size=3G --cache-workers=10 --contimeout=5s --dir-cache-time=24h --max-read-ahead=128k --transfers=3 --tpslimit=8 --timeout=5s --track-renames -vv"
-#ENV RCLONE_VFS_READ_OPTIONS "--allow-other --buffer-size=2048M --dir-cache-time=72h --drive-chunk-size=256M --vfs-read-chunk-size=256M --vfs-read-chunk-size-limit=0 --transfers=10 --drive-v2-download-min-size=0 --rc --tpslimit=8 -vv"
-#ENV RCLONE_VFS_READ_OPTIONS "--buffer-size=2048M --drive-chunk-size=256M --vfs-read-chunk-size=256M --vfs-read-chunk-size-limit=0 --rc --tpslimit=5 -vv"
 ENV RCLONE_VFS_READ_OPTIONS "--buffer-size=2048M --timeout=1h --tpslimit=1750 -vv"
 ENV RCLONE_VFS_READ_OPTIONS_CACHING "--dir-cache-time=72h --poll-interval=60s --rc --rc-addr=:5572"
-#ENV RCLONE_CLOUD_OPTIONS "-vv --tpslimit=1750"
-#ENV RCLONE_CLOUD_OPTIONS_CACHING "--dir-cache-time=74h --poll-interval=60s --rc --rc-addr=:5573"
 
 ENV RCLONE_PRECACHE "1"
 ENV RCLONE_PRECACHE_DIR "/local-media"
@@ -141,7 +131,6 @@ RUN chmod a+x /usr/bin/* && \
 # VOLUMES
 ####################
 # Define mountable directories.
-#VOLUME /data/db /config /cloud-encrypt /cloud-decrypt /local-decrypt /local-media /chunks /log
 VOLUME /config /read-decrypt /cloud-decrypt /local-decrypt /local-media /local-media-edit /chunks /log
 
 RUN chmod -R 777 /log

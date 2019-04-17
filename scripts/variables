@@ -13,26 +13,20 @@ local_media_edit_dir="/local-media-edit"
 
 rclone_config="--config=/config/rclone.conf"
 rclone_exclude_file="/config/exclude.txt"
-#rclone_options="${rclone_config} --buffer-size $(printenv COPY_BUFFER_SIZE) --checkers $(printenv COPY_CHECKERS)"
 rclone_options="${rclone_config} --drive-chunk-size $(printenv COPY_DRIVE_CHUNK_SIZE) --checkers $(printenv COPY_CHECKERS) --transfers $(printenv COPY_TRANSFERS) -v"
 rclone_mirror_options="${rclone_config} --exclude-from=${rclone_exclude_file} --transfers $(printenv MIRROR_TRANSFERS) --bwlimit $(printenv MIRROR_BWLIMIT) --tpslimit $(printenv MIRROR_TPS_LIMIT) --tpslimit-burst $(printenv MIRROR_TPS_LIMIT_BURST)"
 rclone_dedupe_options="${rclone_config} --dedupe-mode $(printenv DEDUPE_MODE) --tpslimit $(printenv DEDUPE_TPS_LIMIT) -v"
 rclone_mount_options="${rclone_config} --allow-other --uid ${_puid:-911} --gid ${_pgid:-911} --umask $(printenv RCLONE_MASK)"
 
-#rclone_read_mount_options="${rclone_mount_options} --read-only"
 rclone_read_mount_options="${rclone_mount_options}"
-rclone_mount_options="${rclone_mount_options} $(printenv RCLONE_CLOUD_OPTIONS) $(printenv RCLONE_CLOUD_OPTIONS_CACHING)"
 
 if [ "$(printenv RCLONE_READ_TYPE)" == "CACHE" ]; then
     rclone_read_mount_options="${rclone_read_mount_options} --cache-db-path=/chunks/cache.db --cache-dir=/chunks/vfs --cache-chunk-path=/chunks $(printenv RCLONE_CACHE_READ_OPTIONS)"
-fi
-
-if [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]; then
+elif [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]; then
     rclone_read_mount_options="${rclone_read_mount_options} $(printenv RCLONE_VFS_READ_OPTIONS) $(printenv RCLONE_VFS_READ_OPTIONS_CACHING)"
 fi
 
 ufs_options="-o uid=${_puid:-911} -o gid=${_pgid:-911} -o cow,allow_other,direct_io,nonempty,auto_cache,sync_read"
-#mfs_options="-o uid=${_puid:-911} -o gid=${_pgid:-911} -o defaults,nonempty,allow_other,direct_io,use_ino,category.create=ff,category.search=ff,minfreespace=0,func.getattr=newest"
 mfs_options="-o uid=${_puid:-911} -o gid=${_pgid:-911} -o $(printenv MERGERFS_OPTIONS)"
 
 
@@ -40,15 +34,12 @@ rclone_cloud_endpoint=$(printenv RCLONE_CLOUD_ENDPOINT | tr -d '"' | tr -d "'")
 rclone_local_endpoint=$(printenv RCLONE_LOCAL_ENDPOINT | tr -d '"' | tr -d "'")
 rclone_dedupe_root=$(printenv DEDUPE_ROOT)
 
+
 if [ "$(printenv RCLONE_READ_TYPE)" == "CACHE" ]; then
     rclone_read_endpoint=$(printenv RCLONE_CACHE_ENDPOINT | tr -d '"' | tr -d "'")
-fi
-
-if [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]; then
+elif [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]; then
     rclone_read_endpoint=$(printenv RCLONE_CLOUD_ENDPOINT | tr -d '"' | tr -d "'")
-fi
-
-if [ "$(printenv RCLONE_READ_MANUAL_ENDPOINT)" != "" ]; then
+elif [ "$(printenv RCLONE_READ_MANUAL_ENDPOINT)" != "" ]; then
     rclone_read_endpoint=$(printenv RCLONE_READ_MANUAL_ENDPOINT | tr -d '"' | tr -d "'")
 fi
 
@@ -70,8 +61,7 @@ fi
 cloud_upload_time=$(printenv CLOUDUPLOAD_TIME)
 rm_delete_time=$(printenv RMDELETE_TIME)
 dedupe_time=$(printenv DEDUPE_TIME)
-cron_log=/log/cron.log
+cron_log="${log_dir}/cron.log"
 
 vfs_precache_dir=$(printenv RCLONE_VFS_PRECACHE_DIR)
 rc_read_url="--url http://localhost:5572/"
-#rc_direct_url="--url http://localhost:5573/"

@@ -27,37 +27,6 @@ mount_read_gdrive () {
 
 }
 
-mount_gdrive () {
-	check_rclone_cloud
-
-	# Make sure GD mountpoint exists.
-	if [ ! -d "${cloud_decrypt_dir}" ]; then
-		mkdir -p "${cloud_decrypt_dir}"
-	fi
-
-	if [ $(ps -ef | grep "rclone" | grep -v "grep" | wc -l) == "1" ]; then
-		echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting direct Google Drive: ${cloud_decrypt_dir}"
-		rclone mount $rclone_mount_options "$@" "${rclone_cloud_endpoint}" "${cloud_decrypt_dir}" &
-	else
-		echo "[ $(date $(printenv DATE_FORMAT)) ] Google Drive mountpoint: ${cloud_decrypt_dir} already mounted."
-	fi
-
-	sleep 5
-
-	while [ -z "$(ls -A ${cloud_decrypt_dir})" ]
-	do
-		echo "Waiting for mount ${cloud_decrypt_dir} ..."
-		sleep 10
-	done
-
-	while [ -z "$(ls -A ${read_decrypt_dir})" ]
-	do
-		echo "Waiting for mount ${read_decrypt_dir} ..."
-		sleep 10
-	done
-
-}
-
 mount_union () {
 	# Make sure combined plex media directory exists.
 	if [ ! -d "${local_media_dir}" ]; then
@@ -88,27 +57,8 @@ mount_union () {
 		fi
 	fi
 
-#	if [ "$(printenv UNION_PROGRAM)" == "MERGERFS" ]; then
-#		if [ $(ps -ef | grep "mergerfs" | grep -v "grep" | wc -l) == "0" ]; then
-#			mfs_mounts="${local_decrypt_dir}:${read_decrypt_dir}"
-#			echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting mergerfs: ${local_media_dir}"
-#		mergerfs $mfs_options "${mfs_mounts}" "${local_media_dir}"
-#		else
-#			echo "[ $(date $(printenv DATE_FORMAT)) ] Union mountpoint: ${local_media_dir} already mounted."
-#		fi
-#
-#		if [ $(ps -ef | grep "mergerfs" | grep -v "grep" | wc -l) == "1" ]; then
-#			mfs_edit_mounts="${local_decrypt_dir}:${read_decrypt_dir}:${cloud_decrypt_dir}"
-#			echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting edit mergerfs: ${local_media_edit_dir}"
-#			mergerfs $mfs_options "${mfs_edit_mounts}" "${local_media_edit_dir}"
-#		else
-#			echo "[ $(date $(printenv DATE_FORMAT)) ] Union mountpoint: ${local_media_edit_dir} already mounted."
-#		fi
-#	fi
-
 	if [ "$(printenv UNION_PROGRAM)" == "MERGERFS" ]; then
 		if [ $(ps -ef | grep "mergerfs" | grep -v "grep" | wc -l) == "0" ]; then
-			#mfs_mounts="${local_decrypt_dir}:${read_decrypt_dir}:${cloud_decrypt_dir}"
 			mfs_mounts="${local_decrypt_dir}:${read_decrypt_dir}"
 			echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting mergerfs: ${local_media_dir}"
 			mergerfs $mfs_options "${mfs_mounts}" "${local_media_dir}"
@@ -121,8 +71,6 @@ mount_union () {
 
 install_cron () {
 
-	#Output environmental variables for cron
-	#env >> /etc/environment
 	echo "${cloud_upload_time} /usr/bin/cloudupload >> ${cron_log} 2>&1" >> /etc/crontabs/root
 	echo "${rm_delete_time} /usr/bin/rmlocal >> ${cron_log} 2>&1" >> /etc/crontabs/root
 	echo "${dedupe_time} /usr/bin/dedupe >> ${cron_log} 2>&1" >> /etc/crontabs/root
@@ -134,15 +82,11 @@ precache () {
 	#Precache
 	if ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_PRECACHE_METHOD)" == "FIND" ]) || ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_READ_TYPE)" == "CACHE" ]); then
 		/usr/bin/find $(printenv RCLONE_PRECACHE_DIR)
-	fi
-
-	if ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_PRECACHE_METHOD)" == "VFS" ]) || ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]); then
+	elif ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_PRECACHE_METHOD)" == "VFS" ]) || ([ "$(printenv RCLONE_PRECACHE)" == "1" ] && [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]); then
 		if [[ "${vfs_precache_dir}" == "" ]]; then
 			rclone rc ${rc_read_url} vfs/refresh recursive=true
-#			rclone rc ${rc_direct_url} vfs/refresh recursive=true
 		else
 			rclone rc ${rc_read_url} vfs/refresh dir="${vfs_precache_dir}" recursive=true
-#			rclone rc ${rc_direct_url} vfs/refresh dir="${vfs_precache_dir}" recursive=true
 		fi
 	fi
 }
@@ -153,7 +97,6 @@ if pidof -o %PPID -x "$(basename "$0")"; then
 	echo "[ $(date $(printenv DATE_FORMAT)) ] Mount already in progress. Aborting."
 else
 	mount_read_gdrive
-#	mount_gdrive
 	mount_union
 	install_cron
 	sleep 5
