@@ -3,6 +3,5 @@
 
 # unmount fuse
 fusermount -uz "${read_decrypt_dir}"
-fusermount -uz "${cloud_decrypt_dir}"
 fusermount -uz "${local_decrypt_dir}"
 fusermount -uz "${local_media_dir}"

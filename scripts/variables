@@ -3,13 +3,10 @@
 _puid=$(printenv PUID)
 _pgid=$(printenv PGID)
 
-cloud_decrypt_dir="/cloud-decrypt"
-
 read_decrypt_dir="/read-decrypt"
 
 local_decrypt_dir="/local-decrypt"
 local_media_dir="/local-media"
-local_media_edit_dir="/local-media-edit"
 
 rclone_config="--config=/config/rclone.conf"
 rclone_exclude_file="/config/exclude.txt"

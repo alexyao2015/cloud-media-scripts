@@ -131,7 +131,7 @@ RUN chmod a+x /usr/bin/* && \
 # VOLUMES
 ####################
 # Define mountable directories.
-VOLUME /config /read-decrypt /cloud-decrypt /local-decrypt /local-media /local-media-edit /chunks /log
+VOLUME /config /read-decrypt /local-decrypt /local-media /local-media-edit /log
 
 RUN chmod -R 777 /log
 

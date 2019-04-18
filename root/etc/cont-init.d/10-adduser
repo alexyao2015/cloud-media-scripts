@@ -25,6 +25,5 @@ chown -R abc:abc \
     /config \
     /usr/bin/* \
     $read_decrypt_dir \
-    $cloud_decrypt_dir \
     $local_decrypt_dir \
     $local_media_dir
