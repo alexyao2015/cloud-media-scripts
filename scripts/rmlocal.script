@@ -26,6 +26,7 @@ rm_time () {
 				(*.QTFS) continue ;;
 				(*.unionfs-fuse*) continue ;;
 				(*.DS_STORE) continue ;;
+				(*.inProgress*) continue ;;
 			esac
 
 			# If file is opened by another process, wait until it isn't.
