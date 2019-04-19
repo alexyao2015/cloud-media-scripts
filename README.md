@@ -1,3 +1,5 @@
+<a href="https://travis-ci.com/alexyao2015/cloud-media-scripts"><img alt="Travis CI builds" src="https://travis-ci.com/alexyao2015/cloud-media-scripts.svg?branch=master"></a>
+<a href="https://hub.docker.com/r/yaoa/cloud-media-scripts"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/yaoa/cloud-media-scripts.svg"></a>
 # Usage
 
 Default settings use ~100GB for local media, remove atleast 80 GB and Plexdrive chunks and cache are removed after 24 hours:
@@ -223,9 +225,3 @@ The reason for these permissions are that when writing to the local folder (`/lo
 ## Test run
 `docker run --name cloud-media-scripts -d cloud-media-scripts`
 
-
-If you want to support the project or just buy me a beer I accept Paypal and bitcoins.
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/madslundt)
-
-BitCoin address: 18fXu7Ty9RB4prZCpD8CDD1AyhHaRS1ef3

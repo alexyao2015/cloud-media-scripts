@@ -2,5 +2,6 @@
 .gitignore
 .github
 .gitattributes
+.travis.yml
 READMETEMPLATE.md
 README.md

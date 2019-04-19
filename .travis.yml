@@ -1,0 +1,40 @@
+sudo: required
+services:
+- docker
+language: bash
+script:
+# Build image
+- docker build -t yaoa/cloud-media-scripts:dev -f ./Dockerfile .
+
+before_deploy:
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+deploy:
+- provider: script
+  script: docker tag yaoa/cloud-media-scripts:dev yaoa/cloud-media-scripts:latest && docker push yaoa/cloud-media-scripts:latest
+  on:
+    branch: master
+    condition: $TRAVIS_PULL_REQUEST = false
+
+- provider: script
+  script: docker tag yaoa/cloud-media-scripts:dev yaoa/cloud-media-scripts:$TRAVIS_COMMIT && docker push yaoa/cloud-media-scripts:$TRAVIS_COMMIT
+  on:
+    all_branches: true
+    condition: $TRAVIS_PULL_REQUEST = false
+
+- provider: script
+  script: docker tag yaoa/cloud-media-scripts:dev yaoa/cloud-media-scripts:$TRAVIS_BRANCH && docker push yaoa/cloud-media-scripts:$TRAVIS_BRANCH
+  on:
+    all_branches: true
+    condition: $TRAVIS_PULL_REQUEST = false
+
+- provider: script
+  script: docker tag yaoa/cloud-media-scripts:dev yaoa/cloud-media-scripts:$TRAVIS_TAG && docker push yaoa/cloud-media-scripts:$TRAVIS_TAG
+  on:
+    tags: true
+    condition: $TRAVIS_PULL_REQUEST = false
+
+notifications:
+  email:
+    on_success: always
+    on_failure: always
