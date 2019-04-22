@@ -83,6 +83,11 @@ precache () {
 	fi
 }
 
+filebrowser () {
+	printf "{\n  \"port\": 80,\n  \"baseURL\": \"\",\n  \"address\": \"\"\n}" > /data/config.json
+	/usr/local/bin/filebrowser -c /data/config.json -r /local-media &
+}
+
 ###############################################################################
 
 if pidof -o %PPID -x "$(basename "$0")"; then
@@ -91,6 +96,7 @@ else
 	mount_read_gdrive
 	mount_union
 	install_cron
+	filebrowser
 	sleep 5
 	precache
 fi

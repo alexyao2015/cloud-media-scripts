@@ -48,6 +48,10 @@ RUN cd /tmp \
     && rm -rf "$RCLONE_ZIP" \
     && rm -rf "$RCLONE_RELEASE"
 
+#filebrowser
+RUN apk add curl \
+    && curl -fsSL https://filebrowser.xyz/get.sh | bash
+
 RUN apk del \
     curl \
     unzip \
