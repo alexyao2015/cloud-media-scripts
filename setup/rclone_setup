@@ -5,7 +5,7 @@ printf "\n\n\n==============================================================\n"
 
 printf "Setup following endpoints in rclone:\n\n"
 
-
+:'
 echo "- Endpoint to your cloud storage."
 printf "\t- Create new remote [Press N]\n"
 if [ "$(printenv ENCRYPT_MEDIA)" != "0" ]; then
@@ -36,7 +36,11 @@ printf "\t- Enter the encrypted folder: ${cloud_encrypt_dir}. If you are using s
 printf "\t- Choose the same filename encrypted as you did with the cloud storage.\n"
 printf "\t- Enter the same password as you did with the cloud storage.\n"
 printf "\t- Enter the same pass phrase as you did with the cloud storage.\n"
-fi
+fi'
+
+printf "Create endpoints in rclone making sure that two main endpoints exist\n"
+printf "local-decrypt: and direct-decrypt:\n"
+printf "If anything is encrypted, use a crypt to decrypt it with the decrypted ones being the final endpoints"
 
 printf "==============================================================\n\n\n"
 

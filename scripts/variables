@@ -15,13 +15,7 @@ rclone_mirror_options="${rclone_config} --exclude-from=${rclone_exclude_file} --
 rclone_dedupe_options="${rclone_config} --dedupe-mode $(printenv DEDUPE_MODE) --tpslimit $(printenv DEDUPE_TPS_LIMIT) -v"
 rclone_mount_options="${rclone_config} --allow-other --uid ${_puid:-911} --gid ${_pgid:-911} --umask $(printenv RCLONE_MASK)"
 
-rclone_read_mount_options="${rclone_mount_options}"
-
-if [ "$(printenv RCLONE_READ_TYPE)" == "CACHE" ]; then
-    rclone_read_mount_options="${rclone_read_mount_options} --cache-db-path=/chunks/cache.db --cache-dir=/chunks/vfs --cache-chunk-path=/chunks $(printenv RCLONE_CACHE_READ_OPTIONS)"
-elif [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]; then
-    rclone_read_mount_options="${rclone_read_mount_options} $(printenv RCLONE_VFS_READ_OPTIONS) $(printenv RCLONE_VFS_READ_OPTIONS_CACHING)"
-fi
+rclone_read_mount_options="${rclone_mount_options} $(printenv RCLONE_VFS_READ_OPTIONS)"
 
 ufs_options="-o uid=${_puid:-911} -o gid=${_pgid:-911} -o cow,allow_other,direct_io,nonempty,auto_cache,sync_read"
 mfs_options="-o uid=${_puid:-911} -o gid=${_pgid:-911} -o $(printenv MERGERFS_OPTIONS)"
@@ -30,15 +24,6 @@ mfs_options="-o uid=${_puid:-911} -o gid=${_pgid:-911} -o $(printenv MERGERFS_OP
 rclone_cloud_endpoint=$(printenv RCLONE_CLOUD_ENDPOINT | tr -d '"' | tr -d "'")
 rclone_local_endpoint=$(printenv RCLONE_LOCAL_ENDPOINT | tr -d '"' | tr -d "'")
 rclone_dedupe_root=$(printenv DEDUPE_ROOT)
-
-
-if [ "$(printenv RCLONE_READ_TYPE)" == "CACHE" ]; then
-    rclone_read_endpoint=$(printenv RCLONE_CACHE_ENDPOINT | tr -d '"' | tr -d "'")
-elif [ "$(printenv RCLONE_READ_TYPE)" == "VFS" ]; then
-    rclone_read_endpoint=$(printenv RCLONE_CLOUD_ENDPOINT | tr -d '"' | tr -d "'")
-elif [ "$(printenv RCLONE_READ_MANUAL_ENDPOINT)" != "" ]; then
-    rclone_read_endpoint=$(printenv RCLONE_READ_MANUAL_ENDPOINT | tr -d '"' | tr -d "'")
-fi
 
 
 if [ ! -f "${rclone_exclude_file}" ]; then
@@ -61,4 +46,5 @@ dedupe_time=$(printenv DEDUPE_TIME)
 cron_log="${log_dir}/cron.log"
 
 vfs_precache_dir=$(printenv RCLONE_VFS_PRECACHE_DIR)
+find_precache_dir=$(printenv RCLONE_FIND_PRECACHE_DIR)
 rc_read_url="--url http://localhost:5572/"

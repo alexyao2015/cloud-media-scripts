@@ -1,7 +1,7 @@
 #!/bin/bash
 . "/usr/bin/config"
 
-if [ -z "$(ls -A ${read_decrypt_dir})" ] || [ $(ps -ef | grep "unionfs" | grep -v "grep" | wc -l) == "0" ]; then
+if [ -z "$(ls -A ${read_decrypt_dir})" ] || [ $(ps -ef | grep "mergerfs" | grep -v "grep" | wc -l) == "0" ]; then
     echo "[ $(date $(printenv DATE_FORMAT)) ] Mount has dropped. Remount in progress."
     echo "[ $(date $(printenv DATE_FORMAT)) ] Unmounting..."
     fusermount -uz "${read_decrypt_dir}"
