@@ -1,0 +1,38 @@
+jobs:
+- job: deploy
+  displayName: Build And Deploy
+  dependsOn: []
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - checkout: self
+    clean: true
+  - script: |
+      docker build -t yaoa/cloud-media-scripts:build -f ./Dockerfile .
+      docker login -u $(dockerId) -p $(dockerPassword)
+      export IMAGE_ID_TEMP=$(sudo docker images --filter=reference=yaoa/cloud-media-scripts:build --format "{{.ID}}")
+      echo '##vso[task.setvariable variable=image_id]'$IMAGE_ID_TEMP
+    displayName: Build Image
+  - script: |
+      docker tag $(image_id) yaoa/cloud-media-scripts:$BUILD_SOURCEVERSION
+      docker push yaoa/cloud-media-scripts:$BUILD_SOURCEVERSION
+    displayName: Deploy Commit ID
+    condition: eq(variables['System.PullRequest.IsFork'], 'False')
+
+  - script: |
+      docker tag $(image_id) yaoa/cloud-media-scripts:latest
+      docker push yaoa/cloud-media-scripts:latest
+    displayName: Deploy Latest
+    condition: and(eq(variables['System.PullRequest.IsFork'], 'False'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+   
+  - script: |
+      docker tag $(image_id) yaoa/cloud-media-scripts:latest-develop
+      docker push yaoa/cloud-media-scripts:latest-develop
+    displayName: Deploy Develop
+    condition: and(eq(variables['System.PullRequest.IsFork'], 'False'), eq(variables['Build.SourceBranch'], 'refs/heads/dev*'))
+
+  - script: |
+      docker tag $(image_id) yaoa/cloud-media-scripts:$BUILD_SOURCEBRANCHNAME
+      docker push yaoa/cloud-media-scripts:$BUILD_SOURCEBRANCHNAME
+    displayName: Deploy Branch
+    condition: eq(variables['System.PullRequest.IsFork'], 'False')
