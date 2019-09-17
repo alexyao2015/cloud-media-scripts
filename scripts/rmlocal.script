@@ -27,6 +27,7 @@ rm_time () {
 				(*.unionfs-fuse*) continue ;;
 				(*.DS_STORE) continue ;;
 				(*.inProgress*) continue ;;
+				(*.fuse_hidden*) continue ;;
 			esac
 
 			# If file is opened by another process, wait until it isn't.
@@ -76,6 +77,7 @@ rm_instant () {
 				(*.QTFS) continue ;;
 				(*.unionfs-fuse*) continue ;;
 				(*.DS_STORE) continue ;;
+				(*.fuse_hidden*) continue ;;
 			esac
 
 			# If file is opened by another process, wait until it isn't.
@@ -140,6 +142,7 @@ rm_space () {
 					(*.QTFS) continue ;;
 					(*.fuse*) continue ;;
 					(.DS_STORE) continue ;;
+					(*.fuse_hidden*) continue ;;
 			esac
 
 			# If file is opened by another process, wait until it isn't.
