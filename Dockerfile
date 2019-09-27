@@ -23,7 +23,8 @@ RUN apk update \
 ###################
 # MergerFS
 ###################
-RUN apk add mergerfs --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ --allow-untrusted
+RUN curl -o /tmp/mergerfs.apk -L "https://github.com/alexyao2015/cloud-media-scripts/releases/download/0/mergerfs-2.28.1-r0.apk" && \
+    apk add --allow-untrusted /tmp/mergerfs.apk
 
 # S6 overlay
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
@@ -57,11 +58,11 @@ RUN apk del \
 # ENVIRONMENT VARIABLES
 ####################
 
-# Rclone
+# Rclone; local-decrypt not used
 ENV COPY_CHECKERS="4" \
     COPY_TRANSFERS="4" \
     COPY_DRIVE_CHUNK_SIZE="32M" \
-    RCLONE_CLOUD_ENDPOINT="direct-decrypt:" \
+    RCLONE_CLOUD_ENDPOINT="cloud:" \
     RCLONE_LOCAL_ENDPOINT="local-decrypt:" \
     RCLONE_MASK="000" \
     RCLONE_VFS_READ_OPTIONS="--buffer-size=256M --dir-cache-time=72h --poll-interval=60s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 -vv" \
@@ -71,14 +72,17 @@ ENV COPY_CHECKERS="4" \
     RCLONE_PRECACHE_METHOD=""
 #or VFS or FIND
 
-# Rclone Mirror Settings
+# Rclone Mirror Settings, if backup mount set to 1 will use mirror endpoint
 ENV MIRROR_MEDIA="0" \
-    RCLONE_MIRROR_ENDPOINT="gdm-crypt:" \
-    ENCRYPT_MIRROR_MEDIA="1" \
+    RCLONE_MIRROR_ENDPOINT="mirror:" \
     MIRROR_BWLIMIT="100M" \
     MIRROR_TRANSFERS="4" \
-    MIRROR_TPS_LIMIT="1" \
-    MIRROR_TPS_LIMIT_BURST="1"
+    MIRROR_TPS_LIMIT="8" \
+    MIRROR_TPS_LIMIT_BURST="8" \
+    RCLONE_BACKUP_MOUNT="0" \
+    MIRROR_ENCRYPTED_ENDPOINT="mirror-copy-raw:" \
+    CLOUD_ENCYPTED_ENDPOINT="mirror-copy-cloud-raw:" \
+    MIRROR_SUBDIR="Sync"
 
 # Time format
 ENV DATE_FORMAT="+%F@%T" \
@@ -102,7 +106,8 @@ ENV PLEX_URL="" \
 #Cron
 ENV CLOUDUPLOAD_TIME="30 1 * * *" \
     RMDELETE_TIME="30 6 * * *" \
-    DEDUPE_TIME="0 6 * * *"
+    DEDUPE_TIME="0 6 * * *" \
+    MIRROR_TIME="0 6 * * *"
 
 ENV MERGERFS_OPTIONS="splice_move,atomic_o_trunc,auto_cache,big_writes,default_permissions,direct_io,nonempty,allow_other,sync_read,category.create=ff,category.search=ff,minfreespace=0"
 

@@ -11,7 +11,7 @@ local_media_dir="/local-media"
 rclone_config="--config=/config/rclone.conf"
 rclone_exclude_file="/config/exclude.txt"
 rclone_options="${rclone_config} --drive-chunk-size $(printenv COPY_DRIVE_CHUNK_SIZE) --checkers $(printenv COPY_CHECKERS) --transfers $(printenv COPY_TRANSFERS) -v"
-rclone_mirror_options="${rclone_config} --exclude-from=${rclone_exclude_file} --transfers $(printenv MIRROR_TRANSFERS) --bwlimit $(printenv MIRROR_BWLIMIT) --tpslimit $(printenv MIRROR_TPS_LIMIT) --tpslimit-burst $(printenv MIRROR_TPS_LIMIT_BURST)"
+rclone_mirror_options="${rclone_config} --exclude-from=${rclone_exclude_file} --transfers $(printenv MIRROR_TRANSFERS) --bwlimit $(printenv MIRROR_BWLIMIT) --tpslimit $(printenv MIRROR_TPS_LIMIT) --tpslimit-burst $(printenv MIRROR_TPS_LIMIT_BURST) --drive-server-side-across-configs"
 rclone_dedupe_options="${rclone_config} --dedupe-mode $(printenv DEDUPE_MODE) --tpslimit $(printenv DEDUPE_TPS_LIMIT) -v"
 rclone_mount_options="${rclone_config} --allow-other --uid ${_puid:-911} --gid ${_pgid:-911} --umask $(printenv RCLONE_MASK)"
 
@@ -24,6 +24,9 @@ mfs_options="-o uid=${_puid:-911} -o gid=${_pgid:-911} -o $(printenv MERGERFS_OP
 rclone_cloud_endpoint=$(printenv RCLONE_CLOUD_ENDPOINT | tr -d '"' | tr -d "'")
 rclone_local_endpoint=$(printenv RCLONE_LOCAL_ENDPOINT | tr -d '"' | tr -d "'")
 rclone_dedupe_root=$(printenv DEDUPE_ROOT)
+rclone_mirror_endpoint=$(printenv RCLONE_MIRROR_ENDPOINT) #used for backup mounting, decrypted mount
+rclone_mirror_encrypted_endpoint="$(printenv MIRROR_ENCRYPTED_ENDPOINT)$(printenv MIRROR_SUBDIR)" #used for syncing, encrypted mount
+rclone_cloud_encrypted_endpoint="$(printenv CLOUD_ENCYPTED_ENDPOINT)$(printenv MIRROR_SUBDIR)" #used for syncing, encrypted mount, sync from
 
 
 if [ ! -f "${rclone_exclude_file}" ]; then
@@ -43,6 +46,7 @@ fi
 cloud_upload_time=$(printenv CLOUDUPLOAD_TIME)
 rm_delete_time=$(printenv RMDELETE_TIME)
 dedupe_time=$(printenv DEDUPE_TIME)
+mirror_time=$(printenv MIRROR_TIME)
 cron_log="${log_dir}/cron.log"
 
 vfs_precache_dir=$(printenv RCLONE_VFS_PRECACHE_DIR)

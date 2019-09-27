@@ -20,7 +20,12 @@ mount_gdrive () {
 
 	if [ $(ps -ef | grep "rclone" | grep -v "grep" | wc -l) == "0" ]; then
 		echo "[ $(date $(printenv DATE_FORMAT)) ] Mounting read Google Drive: ${read_decrypt_dir}"
-		rclone mount $rclone_read_mount_options "$@" "${rclone_cloud_endpoint}" "${read_decrypt_dir}" &
+		if [ $(printenv RCLONE_BACKUP_MOUNT) == "1" ]; then
+			echo "[ $(date $(printenv DATE_FORMAT)) ] Backup mount enabled. Mounting ${rclone_mirror_endpoint}"
+			rclone mount $rclone_read_mount_options "$@" "${rclone_mirror_endpoint}" "${read_decrypt_dir}" &
+		else
+			rclone mount $rclone_read_mount_options "$@" "${rclone_cloud_endpoint}" "${read_decrypt_dir}" &
+		fi
 	else
 		echo "[ $(date $(printenv DATE_FORMAT)) ] Google Drive mountpoint: ${read_decrypt_dir} already mounted."
 	fi
@@ -54,6 +59,7 @@ install_cron () {
 	echo "${cloud_upload_time} /usr/bin/cloudupload >> ${cron_log} 2>&1" >> /etc/crontabs/root
 	echo "${rm_delete_time} /usr/bin/rmlocal >> ${cron_log} 2>&1" >> /etc/crontabs/root
 	echo "${dedupe_time} /usr/bin/dedupe >> ${cron_log} 2>&1" >> /etc/crontabs/root
+	echo "${mirror_time} /usr/bin/mirror >> ${cron_log} 2>&1" >> /etc/crontabs/root
 	crond -b
 
 }
