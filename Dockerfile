@@ -9,6 +9,8 @@ ENV DEPS \
     curl \
     findutils \
     fuse \
+    libgcc \
+    libstdc++ \ 
     openssl \
     procps \
     shadow \
@@ -23,8 +25,15 @@ RUN apk update \
 ###################
 # MergerFS
 ###################
-RUN curl -o /tmp/mergerfs.apk -L "https://github.com/alexyao2015/cloud-media-scripts/releases/download/0/mergerfs-2.28.1-r0.apk" && \
-    apk add --allow-untrusted /tmp/mergerfs.apk
+ENV MERGERFS_VERSION="2.28.2"
+RUN apk add --no-cache g++ linux-headers make \
+    && cd /tmp \
+    && wget "https://github.com/trapexit/mergerfs/releases/download/${MERGERFS_VERSION}/mergerfs-${MERGERFS_VERSION}.tar.gz" \
+    && tar -xzf "mergerfs-${MERGERFS_VERSION}.tar.gz" \
+    && cd "mergerfs-${MERGERFS_VERSION}" \
+    && make install \
+    && rm -rf "/tmp/mergerfs-${MERGERFS_VERSION}" \
+    && apk del g++ linux-headers make
 
 # S6 overlay
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
@@ -49,10 +58,11 @@ RUN cd /tmp \
     && rm -rf "$RCLONE_ZIP" \
     && rm -rf "$RCLONE_RELEASE"
 
-RUN apk del \
-    curl \
-    unzip \
-    wget
+# Was not doing anything
+#RUN apk del \
+#    curl \
+#    unzip \
+#    wget
 
 ####################
 # ENVIRONMENT VARIABLES

@@ -1,3 +1,10 @@
+trigger:
+  branches:
+    include:
+    - '*'
+  tags:
+    include:
+    - '*'
 jobs:
 - job: deploy
   displayName: Build And Deploy
@@ -35,4 +42,10 @@ jobs:
       docker tag $(image_id) yaoa/cloud-media-scripts:$BUILD_SOURCEBRANCHNAME
       docker push yaoa/cloud-media-scripts:$BUILD_SOURCEBRANCHNAME
     displayName: Deploy Branch
-    condition: eq(variables['System.PullRequest.IsFork'], 'False')
+    condition: and(eq(variables['System.PullRequest.IsFork'], 'False'), startsWith(variables['Build.SourceBranch'], 'refs/heads/'))
+
+  - script: |
+      docker tag $(image_id) yaoa/cloud-media-scripts:$BUILD_SOURCEBRANCHNAME
+      docker push yaoa/cloud-media-scripts:$BUILD_SOURCEBRANCHNAME
+    displayName: Deploy Tag
+    condition: and(eq(variables['System.PullRequest.IsFork'], 'False'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
