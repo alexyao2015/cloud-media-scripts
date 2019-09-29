@@ -11,7 +11,7 @@ local_media_dir="/local-media"
 rclone_config="--config=/config/rclone.conf"
 rclone_exclude_file="/config/exclude.txt"
 rclone_options="${rclone_config} --drive-chunk-size $(printenv COPY_DRIVE_CHUNK_SIZE) --checkers $(printenv COPY_CHECKERS) --transfers $(printenv COPY_TRANSFERS) -v"
-rclone_mirror_options="${rclone_config} --exclude-from=${rclone_exclude_file} --transfers $(printenv MIRROR_TRANSFERS) --bwlimit $(printenv MIRROR_BWLIMIT) --tpslimit $(printenv MIRROR_TPS_LIMIT) --tpslimit-burst $(printenv MIRROR_TPS_LIMIT_BURST) --drive-server-side-across-configs"
+rclone_mirror_options="${rclone_config} --exclude-from=${rclone_exclude_file} --transfers $(printenv MIRROR_TRANSFERS) --bwlimit $(printenv MIRROR_BWLIMIT) --tpslimit $(printenv MIRROR_TPS_LIMIT) --tpslimit-burst $(printenv MIRROR_TPS_LIMIT_BURST) --drive-server-side-across-configs -v"
 rclone_dedupe_options="${rclone_config} --dedupe-mode $(printenv DEDUPE_MODE) --tpslimit $(printenv DEDUPE_TPS_LIMIT) -v"
 rclone_mount_options="${rclone_config} --allow-other --uid ${_puid:-911} --gid ${_pgid:-911} --umask $(printenv RCLONE_MASK)"
 
