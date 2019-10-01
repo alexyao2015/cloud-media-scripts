@@ -106,6 +106,7 @@ ENV REMOVE_LOCAL_FILES_BASED_ON="space" \
 
 #Dedupe
 ENV DEDUPE_ROOT="cloud:" \
+    DEDUPE_MIRROR_ROOT="" \
     DEDUPE_TPS_LIMIT="4" \
     DEDUPE_MODE="largest"
 
