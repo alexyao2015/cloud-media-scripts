@@ -105,7 +105,7 @@ ENV REMOVE_LOCAL_FILES_BASED_ON="space" \
     REMOVE_LOCAL_FILES_AFTER_DAYS="30"
 
 #Dedupe
-ENV DEDUPE_ROOT="direct-decrypt:" \
+ENV DEDUPE_ROOT="cloud:" \
     DEDUPE_TPS_LIMIT="4" \
     DEDUPE_MODE="largest"
 
