@@ -25,7 +25,7 @@ RUN apk update \
 ###################
 # MergerFS
 ###################
-ENV MERGERFS_VERSION="2.28.2"
+ENV MERGERFS_VERSION="2.29.0"
 RUN apk add --no-cache g++ linux-headers make \
     && cd /tmp \
     && wget "https://github.com/trapexit/mergerfs/releases/download/${MERGERFS_VERSION}/mergerfs-${MERGERFS_VERSION}.tar.gz" \
@@ -45,7 +45,7 @@ RUN OVERLAY_VERSION=$(curl -sX GET "https://api.github.com/repos/just-containers
 
 
 # Rclone
-ENV RCLONE_VERSION="v1.49.3"
+ENV RCLONE_VERSION="v1.52.1"
 ENV RCLONE_RELEASE="rclone-${RCLONE_VERSION}-linux-amd64"
 ENV RCLONE_ZIP="${RCLONE_RELEASE}.zip"
 ENV RCLONE_URL="https://github.com/ncw/rclone/releases/download/${RCLONE_VERSION}/${RCLONE_ZIP}"
