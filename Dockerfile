@@ -75,7 +75,7 @@ ENV COPY_CHECKERS="4" \
     RCLONE_CLOUD_ENDPOINT="cloud:" \
     RCLONE_LOCAL_ENDPOINT="local-decrypt:" \
     RCLONE_MASK="000" \
-    RCLONE_VFS_READ_OPTIONS="--buffer-size=256M --dir-cache-time=72h --poll-interval=60s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 -vv" \
+    RCLONE_VFS_READ_OPTIONS="--buffer-size=128M --dir-cache-time=72h --poll-interval=60s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 -vv" \
     RCLONE_PRECACHE="1" \
     RCLONE_FIND_PRECACHE_DIR="/local-media" \
     RCLONE_VFS_PRECACHE_DIR="" \
