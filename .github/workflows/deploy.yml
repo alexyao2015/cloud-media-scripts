@@ -27,6 +27,13 @@ jobs:
         run: |
           docker tag $image_id yaoa/cloud-media-scripts:$GITHUB_SHA
           docker push yaoa/cloud-media-scripts:$GITHUB_SHA
+      - name: Deploy Run Number
+        if: ${{ github.head_ref == '' && github.sha != '' }}
+        env:
+          image_id: ${{ steps.build_image.outputs.image_id }}
+        run: |
+          docker tag $image_id yaoa/cloud-media-scripts:$GITHUB_RUN_NUMBER
+          docker push yaoa/cloud-media-scripts:$GITHUB_RUN_NUMBER
       - name: Deploy Latest
         if: ${{ github.head_ref == '' && github.ref == 'refs/heads/master' }}
         env:
