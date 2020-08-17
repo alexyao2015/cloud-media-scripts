@@ -1,3 +1,19 @@
+FROM alpine:latest as mergerfsbuilder
+WORKDIR /mergerfs
+
+###################
+# MergerFS
+###################
+ENV MERGERFS_VERSION="2.29.0"
+RUN apk add --no-cache g++ linux-headers make \
+    && wget "https://github.com/trapexit/mergerfs/releases/download/${MERGERFS_VERSION}/mergerfs-${MERGERFS_VERSION}.tar.gz" \
+    && tar -xzf "mergerfs-${MERGERFS_VERSION}.tar.gz" \
+    && cd "mergerfs-${MERGERFS_VERSION}" \
+    && make PREFIX="/install" DESTDIR="/mergerfs" install 
+
+
+# ====================Begin Image===========================
+
 FROM alpine:latest
 
 # dependencies
@@ -25,15 +41,7 @@ RUN apk update \
 ###################
 # MergerFS
 ###################
-ENV MERGERFS_VERSION="2.29.0"
-RUN apk add --no-cache g++ linux-headers make \
-    && cd /tmp \
-    && wget "https://github.com/trapexit/mergerfs/releases/download/${MERGERFS_VERSION}/mergerfs-${MERGERFS_VERSION}.tar.gz" \
-    && tar -xzf "mergerfs-${MERGERFS_VERSION}.tar.gz" \
-    && cd "mergerfs-${MERGERFS_VERSION}" \
-    && make install \
-    && rm -rf "/tmp/mergerfs-${MERGERFS_VERSION}" \
-    && apk del g++ linux-headers make
+COPY --from=mergerfsbuilder /mergerfs/install/ /usr/local/
 
 # S6 overlay
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
