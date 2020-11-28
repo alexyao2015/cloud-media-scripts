@@ -32,8 +32,9 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ci-${{ github.run_number }}.tar
-      - name: Set Docker Repository
+      - name: Set Docker Repository & Load Image
         run: |
+          docker load --input output.tar
           if [ ${{ matrix.registry }} == "dockerhub" ]; then
             export DOCKER_REPO="yaoa/cloud-media-scripts"
           else
