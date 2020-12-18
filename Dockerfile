@@ -1,5 +1,5 @@
 ARG MERGERFS_VERSION="2.32.1"
-ARG RCLONE_VERSION_INSTALL="v1.53.3"
+ARG RCLONE_VERSION="v1.53.3"
 
 ###################
 # MergerFS
@@ -22,12 +22,12 @@ RUN wget "https://github.com/trapexit/mergerfs/releases/download/${MERGERFS_VERS
 # Rclone
 ###################
 FROM busybox:latest as rclonedownloader
-ARG RCLONE_VERSION_INSTALL
+ARG RCLONE_VERSION
 WORKDIR /rclonedownloader
 
-ENV RCLONE_RELEASE="rclone-${RCLONE_VERSION_INSTALL}-linux-amd64"
+ENV RCLONE_RELEASE="rclone-${RCLONE_VERSION}-linux-amd64"
 ENV RCLONE_ZIP="${RCLONE_RELEASE}.zip"
-ENV RCLONE_URL="https://github.com/ncw/rclone/releases/download/${RCLONE_VERSION_INSTALL}/${RCLONE_ZIP}"
+ENV RCLONE_URL="https://github.com/ncw/rclone/releases/download/${RCLONE_VERSION}/${RCLONE_ZIP}"
 
 RUN wget --no-check-certificate "$RCLONE_URL" \
     && unzip "$RCLONE_ZIP" \
