@@ -1,76 +1,76 @@
-FROM alpine:latest as mergerfsbuilder
-WORKDIR /mergerfs
+ARG MERGERFS_VERSION="2.32.1"
+ARG RCLONE_VERSION_INSTALL="v1.53.3"
 
 ###################
 # MergerFS
 ###################
-ENV MERGERFS_VERSION="2.29.0"
-RUN apk add --no-cache g++ linux-headers make \
-    && wget "https://github.com/trapexit/mergerfs/releases/download/${MERGERFS_VERSION}/mergerfs-${MERGERFS_VERSION}.tar.gz" \
+FROM alpine:latest as mergerfsbuilder
+ARG MERGERFS_VERSION
+WORKDIR /mergerfs
+
+RUN apk add --no-cache \
+        g++ \
+        linux-headers \
+        make
+
+RUN wget "https://github.com/trapexit/mergerfs/releases/download/${MERGERFS_VERSION}/mergerfs-${MERGERFS_VERSION}.tar.gz" \
     && tar -xzf "mergerfs-${MERGERFS_VERSION}.tar.gz" \
     && cd "mergerfs-${MERGERFS_VERSION}" \
     && make PREFIX="/install" DESTDIR="/mergerfs" install 
 
+###################
+# Rclone
+###################
+FROM busybox:latest as rclonedownloader
+ARG RCLONE_VERSION_INSTALL
+WORKDIR /rclonedownloader
+
+ENV RCLONE_RELEASE="rclone-${RCLONE_VERSION_INSTALL}-linux-amd64"
+ENV RCLONE_ZIP="${RCLONE_RELEASE}.zip"
+ENV RCLONE_URL="https://github.com/ncw/rclone/releases/download/${RCLONE_VERSION_INSTALL}/${RCLONE_ZIP}"
+
+RUN wget --no-check-certificate "$RCLONE_URL" \
+    && unzip "$RCLONE_ZIP" \
+    && mv "${RCLONE_RELEASE}/rclone" rclone \
+    && ls -lah /rclonedownloader \
+    && chown root:root rclone \
+    && chmod 755 rclone
+
+FROM busybox:latest as s6downloader
+WORKDIR /s6downloader
+
+RUN OVERLAY_VERSION=$(wget --no-check-certificate -qO - https://api.github.com/repos/just-containers/s6-overlay/releases/latest | awk '/tag_name/{print $4;exit}' FS='[""]') \
+    && wget -O s6-overlay.tar.gz "https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-amd64.tar.gz" \
+    && tar xfz s6-overlay.tar.gz \
+    && rm s6-overlay.tar.gz
 
 # ====================Begin Image===========================
 
 FROM alpine:latest
 
-# dependencies
-ENV DEPS \
-    bash \
-    bc \
-    ca-certificates \
-    coreutils \
-    curl \
-    findutils \
-    fuse \
-    libgcc \
-    libstdc++ \ 
-    openssl \
-    procps \
-    shadow \
-    tzdata \
-    unzip \
-    wget
-
 RUN apk update \
-    && apk add --no-cache $DEPS \
+    && apk add --no-cache \
+        bash \
+        bc \
+        ca-certificates \
+        coreutils \
+        findutils \
+        fuse \
+        libgcc \
+        libstdc++ \ 
+        openssl \
+        procps \
+        shadow \
+        tzdata \
     && sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
 
-###################
-# MergerFS
-###################
 COPY --from=mergerfsbuilder /mergerfs/install/ /usr/local/
+COPY --from=rclonedownloader /rclonedownloader/rclone /usr/bin
+COPY --from=s6downloader /s6downloader /
 
 # S6 overlay
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
 ENV S6_KEEP_ENV=1
-
-RUN OVERLAY_VERSION=$(curl -sX GET "https://api.github.com/repos/just-containers/s6-overlay/releases/latest" | awk '/tag_name/{print $4;exit}' FS='[""]') && \
-    curl -o /tmp/s6-overlay.tar.gz -L "https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-amd64.tar.gz" && \
-    tar xfz  /tmp/s6-overlay.tar.gz -C /
-
-
-# Rclone
-ENV RCLONE_VERSION_INSTALL="v1.52.1"
-ENV RCLONE_RELEASE="rclone-${RCLONE_VERSION_INSTALL}-linux-amd64"
-ENV RCLONE_ZIP="${RCLONE_RELEASE}.zip"
-ENV RCLONE_URL="https://github.com/ncw/rclone/releases/download/${RCLONE_VERSION_INSTALL}/${RCLONE_ZIP}"
-
-RUN cd /tmp \
-    && wget "$RCLONE_URL" \
-    && unzip "$RCLONE_ZIP" \
-    && chmod a+x "${RCLONE_RELEASE}/rclone" \
-    && cp -rf "${RCLONE_RELEASE}/rclone" "/usr/bin/rclone" \
-    && rm -rf "$RCLONE_ZIP" \
-    && rm -rf "$RCLONE_RELEASE"
-
-# Was not doing anything
-#RUN apk del \
-#    curl \
-#    unzip \
-#    wget
 
 ####################
 # ENVIRONMENT VARIABLES
@@ -146,10 +146,8 @@ RUN chmod a+x /usr/bin/* && \
 ####################
 # VOLUMES
 ####################
-# Define mountable directories.
+# Label mountable directories.
 VOLUME /config /read-decrypt /local-decrypt /local-media /log
-
-RUN chmod -R 777 /log
 
 ####################
 # WORKING DIRECTORY
@@ -157,6 +155,6 @@ RUN chmod -R 777 /log
 WORKDIR /data
 
 ####################
-# ENTRYPOINT
+# CMD
 ####################
-ENTRYPOINT ["/init"]
+CMD ["/init"]
