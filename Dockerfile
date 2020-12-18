@@ -32,7 +32,6 @@ ENV RCLONE_URL="https://github.com/ncw/rclone/releases/download/${RCLONE_VERSION
 RUN wget --no-check-certificate "$RCLONE_URL" \
     && unzip "$RCLONE_ZIP" \
     && mv "${RCLONE_RELEASE}/rclone" rclone \
-    && ls -lah /rclonedownloader \
     && chown root:root rclone \
     && chmod 755 rclone
 
@@ -48,8 +47,7 @@ RUN OVERLAY_VERSION=$(wget --no-check-certificate -qO - https://api.github.com/r
 
 FROM alpine:latest
 
-RUN apk update \
-    && apk add --no-cache \
+RUN apk add --no-cache \
         bash \
         bc \
         ca-certificates \
