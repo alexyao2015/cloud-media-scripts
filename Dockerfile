@@ -145,7 +145,7 @@ RUN chmod a+x /usr/bin/* && \
 # VOLUMES
 ####################
 # Label mountable directories.
-VOLUME /config /read-decrypt /local-decrypt /local-media /log
+# VOLUME /config /read-decrypt /local-decrypt /local-media /log
 
 ####################
 # WORKING DIRECTORY

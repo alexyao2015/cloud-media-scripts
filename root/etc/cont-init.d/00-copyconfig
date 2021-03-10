@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+
+mkdir -p /tmp/rcloneconfig
+cp -R /config/* /tmp/rcloneconfig/

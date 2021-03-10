@@ -22,7 +22,7 @@ chmod -R 777 \
 chmod a+r /etc/fuse.conf
 
 chown -R abc:abc \
-    /config \
+    /tmp/rcloneconfig/ \
     /usr/bin/* \
     $read_decrypt_dir \
     $local_decrypt_dir \

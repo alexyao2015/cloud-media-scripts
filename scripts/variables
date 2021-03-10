@@ -8,8 +8,8 @@ read_decrypt_dir="/read-decrypt"
 local_decrypt_dir="/local-decrypt"
 local_media_dir="/local-media"
 
-rclone_config="--config=/config/rclone.conf"
-rclone_exclude_file="/config/exclude.txt"
+rclone_config="--config=/tmp/rcloneconfig/rclone.conf"
+rclone_exclude_file="/tmp/rcloneconfig/exclude.txt"
 rclone_options="${rclone_config} --drive-chunk-size $(printenv COPY_DRIVE_CHUNK_SIZE) --checkers $(printenv COPY_CHECKERS) --transfers $(printenv COPY_TRANSFERS) -v"
 rclone_mirror_options="${rclone_config} --exclude-from=${rclone_exclude_file} --transfers $(printenv MIRROR_TRANSFERS) --bwlimit $(printenv MIRROR_BWLIMIT) --tpslimit $(printenv MIRROR_TPS_LIMIT) --tpslimit-burst $(printenv MIRROR_TPS_LIMIT_BURST) --drive-server-side-across-configs -v"
 rclone_dedupe_options="${rclone_config} --dedupe-mode $(printenv DEDUPE_MODE) --tpslimit $(printenv DEDUPE_TPS_LIMIT) -v"
@@ -41,7 +41,7 @@ fi
 
 secrets_dir="/secrets"
 if [ -d "${secrets_dir}" ]; then
-    cp ${secrets_dir}/* /config/
+    cp ${secrets_dir}/* /tmp/rcloneconfig/
 fi
 
 cloud_upload_time=$(printenv CLOUDUPLOAD_TIME)
