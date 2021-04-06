@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bash
+#!/usr/bin/with-contenv sh
 program_name="emptytrash"
 
 sed -u "s/^/[${program_name}] /" | cat | logutil-service /log/"${program_name}"

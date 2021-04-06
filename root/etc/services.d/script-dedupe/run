@@ -9,17 +9,27 @@
 
 check_rclone_cloud
 
+rclone_config="--config=/tmp/rcloneconfig/rclone.conf"
+rclone_dedupe_options="${rclone_config} --dedupe-mode $(printenv DEDUPE_MODE) --tpslimit $(printenv DEDUPE_TPS_LIMIT) -v"
 # Dedupe Google Drive with defined location
-echo "[ $(date $(printenv DATE_FORMAT)) ] ###### Begin Dedupe ######"
-echo "[ $(date $(printenv DATE_FORMAT)) ] Deduping Google Drive at ${rclone_dedupe_root}"
-rclone dedupe $rclone_dedupe_options "${rclone_dedupe_root}"
-echo "[ $(date $(printenv DATE_FORMAT)) ] Deduping Google Drive at ${rclone_dedupe_root} Complete"
-if [ ${rclone_dedupe_mirror_root} != "" ]; then
-	echo "[ $(date $(printenv DATE_FORMAT)) ] Deduping Google Drive at ${rclone_dedupe_mirror_root}"
-	rclone dedupe $rclone_dedupe_options "${rclone_dedupe_mirror_root}"
-	echo "[ $(date $(printenv DATE_FORMAT)) ] Deduping Google Drive at ${rclone_dedupe_mirror_root} Complete"
+echo "###### Begin Dedupe ######" | info
+if [ "${DEDUPE_CLOUD_DECRYPT}" == "1" ]; then
+  echo "Deduping Google Drive at ${RCLONE_CLOUD_DECRYPT_REMOTE}" | info
+  set -x
+  rclone dedupe \
+    --config=/tmp/rcloneconfig/rclone.conf \
+    "${DEDUPE_SETTINGS}"
+  set +x
+  echo "Deduping Google Drive at ${RCLONE_CLOUD_DECRYPT_REMOTE} Complete" | info
 fi
-echo "[ $(date $(printenv DATE_FORMAT)) ] ###### Dedupe Completed ######"
+if [ "${DEDUPE_MIRROR_REMOTE}" == "1" ]; then
+  set -x
+	echo "Deduping Google Drive at ${RCLONE_MIRROR_REMOTE}" | info
+	rclone dedupe $rclone_dedupe_options "${RCLONE_MIRROR_REMOTE}"
+	set +x
+	echo "Deduping Google Drive at ${RCLONE_MIRROR_REMOTE} Complete" | info
+fi
+echo "###### Dedupe Completed ######" | info
 
 # success!
 exit 0

@@ -25,16 +25,17 @@ FROM busybox:latest as rclonedownloader
 ARG RCLONE_VERSION
 WORKDIR /rclonedownloader
 
-ENV RCLONE_RELEASE="rclone-${RCLONE_VERSION}-linux-amd64"
-ENV RCLONE_ZIP="${RCLONE_RELEASE}.zip"
-ENV RCLONE_URL="https://github.com/ncw/rclone/releases/download/${RCLONE_VERSION}/${RCLONE_ZIP}"
+ENV RCLONE_URL="https://github.com/ncw/rclone/releases/download/${RCLONE_VERSION}/rclone-${RCLONE_VERSION}-linux-amd64.zip"
 
-RUN wget --no-check-certificate "$RCLONE_URL" \
-    && unzip "$RCLONE_ZIP" \
-    && mv "${RCLONE_RELEASE}/rclone" rclone \
-    && chown root:root rclone \
+RUN wget --no-check-certificate -O rclone.zip \
+        "https://github.com/ncw/rclone/releases/download/${RCLONE_VERSION}/rclone-${RCLONE_VERSION}-linux-amd64.zip" \
+    && unzip rclone.zip \
+    && mv rclone-*/rclone rclone \
     && chmod 755 rclone
 
+###################
+# S6 Overlay
+###################
 FROM busybox:latest as s6downloader
 WORKDIR /s6downloader
 
@@ -109,11 +110,6 @@ ENV REMOVE_LOCAL_FILES_BASED_ON="space" \
     REMOVE_LOCAL_FILES_WHEN_SPACE_EXCEEDS_GB="100" \
     REMOVE_LOCAL_FILES_AFTER_DAYS="30"
 
-#Dedupe
-ENV DEDUPE_ROOT="cloud:" \
-    DEDUPE_MIRROR_ROOT="" \
-    DEDUPE_TPS_LIMIT="4" \
-    DEDUPE_MODE="largest"
 
 # Plex
 ENV PLEX_URL="" \
@@ -151,8 +147,9 @@ RUN mkdir -p \
 
 # System Vars
 ENV \
-    MERGERFS_OPTIONS="splice_move,atomic_o_trunc,auto_cache,big_writes,default_permissions,direct_io,nonempty,allow_other,sync_read,category.create=ff,category.search=ff,minfreespace=0"
-
+    MERGERFS_OPTIONS="splice_move,atomic_o_trunc,auto_cache,big_writes,default_permissions,direct_io,nonempty,allow_other,sync_read,category.create=ff,category.search=ff,minfreespace=0" \
+    MAX_LOG_SIZE_BYTES=1000000 \
+    MAX_LOG_NUMBER=10
 
 # User Vars
 ENV \
@@ -162,7 +159,9 @@ ENV \
     RCLONE_CLOUD_DECRYPT_DIR="" \
     RCLONE_MIRROR_REMOTE="mirror" \
     RCLONE_MIRROR_DIR="" \
-
+    DEDUPE_CLOUD_DECRYPT="1" \
+    DEDUPE_MIRROR_REMOTE="0" \
+    DEDUPE_SETTINGS="--dedupe-mode largest --tpslimit 4 -v" \
 # Temporary Config
 ENV \
     RCLONE_USE_MIRROR_AS_CLOUD_REMOTE="0"

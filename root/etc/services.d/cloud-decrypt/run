@@ -8,20 +8,14 @@
 cloud_decrypt_remote="${RCLONE_CLOUD_DECRYPT_REMOTE}"
 cloud_decrypt_dir="${RCLONE_CLOUD_DECRYPT_DIR}"
 
-if [ ${RCLONE_USE_MIRROR_AS_CLOUD_REMOTE} == "1" ]; then
+if [ "${RCLONE_USE_MIRROR_AS_CLOUD_REMOTE}" == "1" ]; then
   cloud_decrypt_remote="${RCLONE_MIRROR_REMOTE}"
   cloud_decrypt_dir="${RCLONE_MIRROR_DIR}"
 fi
 
-echo "Mounting cloud-decrypt using options"\
-        " --config=/tmp/rcloneconfig/rclone.conf" \
-        " --allow-other" \
-        " --uid ${_puid:-911}" \
-        " --gid ${_pgid:-911}" \
-        " --umask ${RCLONE_MASK}" \
-        " ${cloud_decrypt_remote}:${cloud_decrypt_dir}" \
-        " /mounts/cloud-decrypt" | info
+echo "Mounting cloud-decrypt..." | info
 
+set -x
 exec fdmove -c 1 3 \
   rclone mount \
     --config=/tmp/rcloneconfig/rclone.conf \
