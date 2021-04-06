@@ -1,4 +1,0 @@
-#!/bin/bash
-. "/usr/bin/variables"
-
-dedupe.script "$@" 2>&1 | tee "${log_dir}/dedupe.log"

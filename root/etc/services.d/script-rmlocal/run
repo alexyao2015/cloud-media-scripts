@@ -1,11 +1,12 @@
-#!/bin/bash
-###############################################################################
-# CONFIGURATION
-###############################################################################
-# shellcheck source=config
+#!/usr/bin/with-contenv sh
+. "/usr/local/bin/logger"
+# ==============================================================================
+# cloudupload
+# Uploads local-decrypt to cloud
+# ==============================================================================
 
-. "/usr/bin/config"
-##############################################################################
+/bin/s6-svwait -U /var/run/s6/services/media
+
 
 oldSize=0
 movedSize=0
@@ -42,7 +43,7 @@ rm_time () {
 
 			# Move file to remote destination[s], retaining path
 			rclone move $rclone_options "$@" "$n" "${rclone_cloud_endpoint}${destpath}"
-			
+
                         movedSize=$((movedSize + fileSize))
 
                         sizeInMb=$((movedSize / 1000 / 1000))
@@ -92,7 +93,7 @@ rm_instant () {
 
 			# Move file to remote destination[s], retaining path
 			rclone move $rclone_options "$@" "$n" "${rclone_cloud_endpoint}${destpath}"
-			
+
                         movedSize=$((movedSize + fileSize))
 
                         sizeInMb=$((movedSize / 1000 / 1000))
@@ -156,10 +157,10 @@ rm_space () {
 			done
 
 			fileSize=$(du -sb "$n" | awk '{print $1}')
-			
+
 			# Move file to remote destination[s], retaining path
 			rclone move $rclone_options "$@" "$n" "${rclone_cloud_endpoint}${destpath}"
-			
+
                         movedSize=$((movedSize + fileSize))
 
                         sizeInMb=$((movedSize / 1000 / 1000))

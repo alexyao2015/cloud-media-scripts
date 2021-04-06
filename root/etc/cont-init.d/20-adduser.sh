@@ -11,16 +11,3 @@ usermod -o -u "$PUID" abc
 
 echo "User uid:    $(id -u abc)" | info "[${program_name}] "
 echo "User gid:    $(id -g abc)" | info "[${program_name}] "
-
-chmod -R 777 \
-	/var/lock \
-    $log_dir
-
-chmod a+r /etc/fuse.conf
-
-chown -R abc:abc \
-    /tmp/rcloneconfig/ \
-    /usr/bin/* \
-    $read_decrypt_dir \
-    $local_decrypt_dir \
-    $local_media_dir
