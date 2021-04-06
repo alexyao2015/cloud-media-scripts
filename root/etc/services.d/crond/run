@@ -1,0 +1,9 @@
+#!/usr/bin/with-contenv sh
+. "/usr/local/bin/logger"
+# ==============================================================================
+# Crond
+# Runs crond to execute background jobs cloudupload, dedupe, emptytrash, mirror, and rmlocal
+# ==============================================================================
+
+echo "Starting crond..." | info
+exec fdmove 1 3 crond -f

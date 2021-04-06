@@ -125,9 +125,6 @@ ENV CLOUDUPLOAD_TIME="30 1 * * *" \
     DEDUPE_TIME="0 6 * * *" \
     MIRROR_TIME="0 6 * * *"
 
-ENV MERGERFS_OPTIONS="splice_move,atomic_o_trunc,auto_cache,big_writes,default_permissions,direct_io,nonempty,allow_other,sync_read,category.create=ff,category.search=ff,minfreespace=0"
-
-
 ####################
 # SCRIPTS
 ####################
@@ -146,6 +143,29 @@ RUN chmod a+x /usr/bin/* && \
 ####################
 # Label mountable directories.
 # VOLUME /config /read-decrypt /local-decrypt /local-media /log
+
+RUN mkdir -p \
+    /mounts/local-decrypt \
+    /mounts/cloud-decrypt \
+    /mounts/media
+
+# System Vars
+ENV \
+    MERGERFS_OPTIONS="splice_move,atomic_o_trunc,auto_cache,big_writes,default_permissions,direct_io,nonempty,allow_other,sync_read,category.create=ff,category.search=ff,minfreespace=0"
+
+
+# User Vars
+ENV \
+    RCLONE_LOCAL_DECRYPT_REMOTE="local-decrypt" \
+    RCLONE_LOCAL_DECRYPT_DIR="mnt/local-decrypt" \
+    RCLONE_CLOUD_DECRYPT_REMOTE="cloud" \
+    RCLONE_CLOUD_DECRYPT_DIR="" \
+    RCLONE_MIRROR_REMOTE="mirror" \
+    RCLONE_MIRROR_DIR="" \
+
+# Temporary Config
+ENV \
+    RCLONE_USE_MIRROR_AS_CLOUD_REMOTE="0"
 
 ####################
 # WORKING DIRECTORY

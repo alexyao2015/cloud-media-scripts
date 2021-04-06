@@ -1,0 +1,7 @@
+#!/usr/bin/with-contenv bash
+# ==============================================================================
+# local-decrypt
+# Take down the S6 supervision tree if local-decrypt goes down
+# ==============================================================================
+
+s6-svscanctl -t /var/run/s6/services

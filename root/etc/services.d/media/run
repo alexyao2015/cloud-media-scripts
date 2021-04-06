@@ -1,0 +1,24 @@
+#!/usr/bin/with-contenv sh
+. "/usr/local/bin/logger"
+# ==============================================================================
+# media
+# Mounts the media directory (final merged directory) using mergerfs
+# ==============================================================================
+
+/bin/s6-svwait -U /var/run/s6/services/cloud-decrypt
+/bin/s6-svwait -U /var/run/s6/services/local-decrypt
+
+echo "Mounting media with options "\
+   " -o uid=${PUID:-911} -o gid=${PGID:-911}" \
+   " -o ${MERGERFS_OPTIONS}" \
+   " /mounts/local-decrypt:/mounts/cloud-decrypt" \
+   " /mounts/media" | info
+
+# Move stdout to 3 to notify s6 of readiness
+# Run with debug on to provide data to s6 for readiness
+fdmove 1 3 \
+  mergerfs -d -f \
+  -o uid="${PUID:-911}" -o gid="${PGID:-911}" \
+  -o "${MERGERFS_OPTIONS}" \
+  /mounts/local-decrypt:/mounts/cloud-decrypt \
+  /mounts/media

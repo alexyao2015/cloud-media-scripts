@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bash
+# ==============================================================================
+# media
+# Take down the S6 supervision tree if media goes down
+# ==============================================================================
+
+echo "Mergerfs went down, shutting down media! Exiting..." | error
+s6-svscanctl -t /var/run/s6/services

@@ -1,20 +1,17 @@
 #!/usr/bin/with-contenv sh
+. "/usr/local/bin/logger"
+program_name="reconfigure-user"
 
 PUID=${PUID:-911}
 PGID=${PGID:-911}
 
-if [ ! "$(id -u abc)" -eq "$PUID" ]; then usermod -o -u "$PUID" abc ; fi
-if [ ! "$(id -g abc)" -eq "$PGID" ]; then groupmod -o -g "$PGID" abc ; fi
+echo "Reconfiguring GID and UID" | info "[${program_name}] "
+groupmod -o -g "$PGID" abc
+usermod -o -u "$PUID" abc
 
-. "/usr/bin/variables"
+echo "User uid:    $(id -u abc)" | info "[${program_name}] "
+echo "User gid:    $(id -g abc)" | info "[${program_name}] "
 
-echo "
-GID/UID
--------------------------------------
-User uid:    $(id -u abc)
-User gid:    $(id -g abc)
--------------------------------------
-"
 chmod -R 777 \
 	/var/lock \
     $log_dir

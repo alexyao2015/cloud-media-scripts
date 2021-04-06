@@ -1,0 +1,15 @@
+#!/usr/bin/with-contenv sh
+. "/usr/local/bin/logger"
+# ==============================================================================
+# precache
+# Caches cloud directory
+# ==============================================================================
+
+# Reconfigure to be oneshot
+/bin/s6-svc -O /var/run/s6/services/precache
+
+/bin/s6-svwait -U /var/run/s6/services/cloud-decrypt
+
+echo "Running vfs/refresh..." | info
+rclone rc vfs/refresh recursive=true
+echo "vfs/refresh complete..." | info
