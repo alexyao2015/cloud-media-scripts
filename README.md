@@ -3,10 +3,9 @@
 <a href="https://hub.docker.com/r/yaoa/cloud-media-scripts"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/yaoa/cloud-media-scripts.svg"></a>
 # Mounts
 
-Mount /data with config folder inside. Media folder will be mounted to
-/data/media
-Config should be located at /data/config
-Logs will be stored at /logs
+Config mounted at /config
+Logs at /logs
+Final merged media will be at /data/media
 
 # Usage
 

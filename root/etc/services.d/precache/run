@@ -12,10 +12,11 @@
 
 if [ "${PRECACHE_ENABLED}" == "1" ]; then
   if [ "${PRECACHE_USE_RC}" == "1" ]; then
-    echo "Running precache using vfs/refresh..." | info
     if [ -z "${PRECACHE_VFS_DIR}" ]; then
+      echo "Running precache using vfs/refresh for the entire mount..." | info
       s6-setuidgid abc rclone rc vfs/refresh recursive=true
     else
+      echo "Running precache using vfs/refresh for dir=${PRECACHE_VFS_DIR}..." | info
       s6-setuidgid abc rclone rc vfs/refresh dir="${PRECACHE_VFS_DIR}" recursive=true
     fi
   else

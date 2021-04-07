@@ -134,17 +134,20 @@ RUN chmod a+x /usr/bin/* && \
 RUN mkdir -p \
         /mounts/local-decrypt \
         /mounts/cloud-decrypt \
-        /data \
+        /data/media \
+        /config \
         /log \
         /tmp/rcloneconfig \
     && chmod 755 \
         /mounts \
         /data \
+        /config \
         /log \
         /tmp/rcloneconfig \
     && chown abc:abc \
         /mounts \
         /data \
+        /config \
         /tmp/rcloneconfig
 
 # System Vars
