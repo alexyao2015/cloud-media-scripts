@@ -9,7 +9,7 @@
 /bin/s6-svwait -U /var/run/s6/services/local-decrypt
 
 # Need to ensure that media isn't currently mounted before mounting
-fusermount -uz /data/media 2>&1 /dev/null
+fusermount -uz /data/media > /dev/null 2>&1
 
 echo "Mounting media..." | info
 

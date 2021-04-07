@@ -4,7 +4,7 @@
 # Mounts
 
 Config mounted at /config
-Logs at /logs
+Logs at /log
 Final merged media will be at /data/media
 
 # Usage

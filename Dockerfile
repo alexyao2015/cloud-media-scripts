@@ -64,16 +64,10 @@ RUN set -x \
 FROM alpine:latest
 
 RUN apk add --no-cache \
-        bash \
         bc \
         ca-certificates \
-        coreutils \
-        findutils \
         fuse \
-        libgcc \
-        libstdc++ \
         openssl \
-        procps \
         shadow \
         tzdata \
     && sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf

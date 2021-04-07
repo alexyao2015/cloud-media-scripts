@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv sh
 
-if stat --file-system --format=%T /mounts/cloud-decrypt | grep fuseblk > /dev/null; then
+if df -P -T | grep /mounts/cloud-decrypt | awk '{print $2}' | grep fuse\.rclone > /dev/null; then
     exit # cloud-decrypt is mounted
 fi
 exit 1 # cloud-decrypt is not mounted
