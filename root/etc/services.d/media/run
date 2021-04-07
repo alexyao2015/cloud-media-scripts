@@ -14,11 +14,13 @@ echo "Mounting media with options "\
    " /mounts/local-decrypt:/mounts/cloud-decrypt" \
    " /mounts/media" | info
 
+set -x
 # Move stdout to 3 to notify s6 of readiness
 # Run with debug on to provide data to s6 for readiness
-fdmove 1 3 \
-  mergerfs -d -f \
-  -o uid="${PUID:-911}" -o gid="${PGID:-911}" \
-  -o "${MERGERFS_OPTIONS}" \
-  /mounts/local-decrypt:/mounts/cloud-decrypt \
-  /mounts/media
+exec fdmove 2 1 \
+      fdmove -c 1 3 \
+        mergerfs -d -f \
+        -o uid="${PUID:-911}" -o gid="${PGID:-911}" \
+        -o "${MERGERFS_OPTIONS}" \
+        /mounts/local-decrypt:/mounts/cloud-decrypt \
+        /mounts/media

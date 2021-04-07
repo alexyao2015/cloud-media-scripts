@@ -1,4 +1,5 @@
 #!/usr/bin/with-contenv sh
+. "/usr/local/bin/logger"
 # ==============================================================================
 # cloud-decrypt
 # Take down the S6 supervision tree if local-decrypt goes down

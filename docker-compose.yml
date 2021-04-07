@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  cloud-media-scripts:
+    image: ghcr.io/alexyao2015/cloud-media-scripts
+    devices:
+      - /dev/fuse:/dev/fuse:rwm
+    volumes:
+      - ./scripts-data/config:/config
+      - ./scripts-data/log:/log
+    cap_add:
+      - SYS_ADMIN
+      - MKNOD
+    env_file:
+      - ./.env

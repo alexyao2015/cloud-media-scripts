@@ -16,13 +16,16 @@ fi
 echo "Mounting cloud-decrypt..." | info
 
 set -x
-exec fdmove -c 1 3 \
-  rclone mount \
-    --config=/tmp/rcloneconfig/rclone.conf \
-    --allow-other \
-    --uid "${PUID:-911}" \
-    --gid "${PGID:-911}" \
-    --umask "${RCLONE_MASK}" \
-    "${RCLONE_VFS_READ_OPTIONS}" \
-    "${cloud_decrypt_remote}:${cloud_decrypt_dir}" \
-    /mounts/cloud-decrypt
+
+# Move stdout to 3 to notify s6 of readiness
+exec fdmove 2 1 \
+      fdmove -c 1 3 \
+        rclone mount \
+          --config=/tmp/rcloneconfig/rclone.conf \
+          --allow-other \
+          --uid "${PUID:-911}" \
+          --gid "${PGID:-911}" \
+          --umask "${RCLONE_MASK}" \
+          ${RCLONE_VFS_READ_OPTIONS} \
+          "${cloud_decrypt_remote}:${cloud_decrypt_dir}" \
+          /mounts/cloud-decrypt

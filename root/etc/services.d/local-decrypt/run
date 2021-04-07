@@ -9,7 +9,12 @@ echo "Mounting local-decrypt from "\
   "${RCLONE_LOCAL_DECRYPT_REMOTE}:${RCLONE_LOCAL_DECRYPT_DIR}" \
    "to /mounts/local-decrypt ..." | info
 
-exec fdmove -c 1 3 \
-  rclone mount \
-    "${RCLONE_LOCAL_DECRYPT_REMOTE}:${RCLONE_LOCAL_DECRYPT_DIR}" \
-    /mounts/local-decrypt
+set -x
+# Move stdout to 3 to notify s6 of readiness
+exec fdmove 2 1 \
+      fdmove -c 1 3 \
+        rclone mount \
+          --config=/tmp/rcloneconfig/rclone.conf \
+          -v \
+          "${RCLONE_LOCAL_DECRYPT_REMOTE}:${RCLONE_LOCAL_DECRYPT_DIR}" \
+          /mounts/local-decrypt

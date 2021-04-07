@@ -11,5 +11,5 @@
 /bin/s6-svwait -U /var/run/s6/services/cloud-decrypt
 
 echo "Running vfs/refresh..." | info
-rclone rc vfs/refresh recursive=true
+s6-setuidgid abc rclone rc vfs/refresh recursive=true
 echo "vfs/refresh complete..." | info

@@ -16,12 +16,12 @@ RUN apk add --no-cache \
 RUN wget "https://github.com/trapexit/mergerfs/releases/download/${MERGERFS_VERSION}/mergerfs-${MERGERFS_VERSION}.tar.gz" \
     && tar -xzf "mergerfs-${MERGERFS_VERSION}.tar.gz" \
     && cd "mergerfs-${MERGERFS_VERSION}" \
-    && make PREFIX="/install" DESTDIR="/mergerfs" install 
+    && make STATIC=1 LTO=1 PREFIX="/install" DESTDIR="/mergerfs" install
 
 ###################
 # Rclone
 ###################
-FROM busybox:latest as rclonedownloader
+FROM alpine:latest as rclonedownloader
 ARG RCLONE_VERSION
 WORKDIR /rclonedownloader
 
@@ -36,13 +36,28 @@ RUN wget --no-check-certificate -O rclone.zip \
 ###################
 # S6 Overlay
 ###################
-FROM busybox:latest as s6downloader
+FROM alpine:latest as s6downloader
 WORKDIR /s6downloader
 
-RUN OVERLAY_VERSION=$(wget --no-check-certificate -qO - https://api.github.com/repos/just-containers/s6-overlay/releases/latest | awk '/tag_name/{print $4;exit}' FS='[""]') \
-    && wget -O s6-overlay.tar.gz "https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-amd64.tar.gz" \
-    && tar xfz s6-overlay.tar.gz \
-    && rm s6-overlay.tar.gz
+RUN set -x \
+    && wget -O /tmp/s6-overlay.tar.gz "https://github.com/just-containers/s6-overlay/releases/latest/download/s6-overlay-amd64.tar.gz" \
+    && mkdir -p /tmp/s6 \
+    && tar zxvf /tmp/s6-overlay.tar.gz -C /tmp/s6 \
+    && cp -r /tmp/s6/* .
+
+###################
+# Rootfs Converter
+###################
+FROM alpine:latest as rootfs-converter
+WORKDIR /rootfs
+
+RUN set -x \
+    && apk add --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community/ \
+        dos2unix
+
+COPY root .
+RUN set -x \
+    && find . -type f -print0 | xargs -0 -n 1 -P 4 dos2unix
 
 # ====================Begin Image===========================
 
@@ -56,7 +71,7 @@ RUN apk add --no-cache \
         findutils \
         fuse \
         libgcc \
-        libstdc++ \ 
+        libstdc++ \
         openssl \
         procps \
         shadow \
@@ -66,10 +81,8 @@ RUN apk add --no-cache \
 COPY --from=mergerfsbuilder /mergerfs/install/ /usr/local/
 COPY --from=rclonedownloader /rclonedownloader/rclone /usr/bin
 COPY --from=s6downloader /s6downloader /
+COPY --from=rootfs-converter /rootfs /
 
-# S6 overlay
-ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
-ENV S6_KEEP_ENV=1
 
 ####################
 # ENVIRONMENT VARIABLES
@@ -109,42 +122,33 @@ ENV REMOVE_LOCAL_FILES_BASED_ON="space" \
     REMOVE_LOCAL_FILES_AFTER_DAYS="30"
 
 
-# Plex
-ENV PLEX_URL="" \
-    PLEX_TOKEN=""
-
-#Cron
-ENV CLOUDUPLOAD_TIME="30 1 * * *" \
-    RMDELETE_TIME="30 6 * * *" \
-    DEDUPE_TIME="0 6 * * *" \
-    MIRROR_TIME="0 6 * * *"
-
 ####################
 # SCRIPTS
 ####################
-COPY setup/* /usr/bin/
-COPY scripts/* /usr/bin/
-COPY root /
 
 RUN chmod a+x /usr/bin/* && \
     groupmod -g 1000 users && \
 	useradd -u 911 -U -d / -s /bin/false abc && \
-	usermod -G users abc && \
-    rm -rf /tmp/*
-
-####################
-# VOLUMES
-####################
-# Label mountable directories.
-# VOLUME /config /read-decrypt /local-decrypt /local-media /log
+	usermod -G users abc
 
 RUN mkdir -p \
-    /mounts/local-decrypt \
-    /mounts/cloud-decrypt \
-    /mounts/media
+        /mounts/local-decrypt \
+        /mounts/cloud-decrypt \
+        /mounts/media \
+        /log \
+        /tmp/rcloneconfig \
+    && chmod 755 \
+        /mounts \
+        /log \
+        /tmp/rcloneconfig \
+    && chown abc:abc \
+        /mounts \
+        /tmp/rcloneconfig
 
 # System Vars
 ENV \
+    S6_FIX_ATTRS_HIDDEN=1 \
+    S6_BEHAVIOUR_IF_STAGE2_FAILS=2 \
     MERGERFS_OPTIONS="splice_move,atomic_o_trunc,auto_cache,big_writes,default_permissions,direct_io,nonempty,allow_other,sync_read,category.create=ff,category.search=ff,minfreespace=0" \
     RCLONE_VFS_READ_OPTIONS="--buffer-size=128M --dir-cache-time=72h --poll-interval=60s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 -vv" \
     RCLONE_MASK="000" \
@@ -154,7 +158,7 @@ ENV \
 # User Vars
 ENV \
     RCLONE_LOCAL_DECRYPT_REMOTE="local-decrypt" \
-    RCLONE_LOCAL_DECRYPT_DIR="mnt/local-decrypt" \
+    RCLONE_LOCAL_DECRYPT_DIR="/mnt/local-decrypt" \
     RCLONE_CLOUD_DECRYPT_REMOTE="cloud" \
     RCLONE_CLOUD_DECRYPT_DIR="" \
     RCLONE_MIRROR_REMOTE="mirror" \
@@ -162,16 +166,17 @@ ENV \
     DEDUPE_CLOUD_DECRYPT="1" \
     DEDUPE_MIRROR_REMOTE="0" \
     DEDUPE_SETTINGS="--dedupe-mode largest --tpslimit 4 -v" \
+    CRON_CLOUDUPLOAD_TIME="30 1 * * *" \
+    CRON_RMDELETE_TIME="30 6 * * *" \
+    CRON_DEDUPE_TIME="0 6 * * *" \
+    CRON_MIRROR_TIME="0 6 * * *" \
+    CRON_EMPTY_TRASH_TIME="0 0 31 2 0"
+
+# Plex
+ENV PLEX_URL="" \
+    PLEX_TOKEN=""
 # Temporary Config
 ENV \
     RCLONE_USE_MIRROR_AS_CLOUD_REMOTE="0"
 
-####################
-# WORKING DIRECTORY
-####################
-WORKDIR /data
-
-####################
-# CMD
-####################
 CMD ["/init"]
