@@ -5,14 +5,11 @@
 # Mounts the local-decrypt directory (decrypted local files) using rclone
 # ==============================================================================
 
-echo "Mounting local-decrypt from "\
-  "${RCLONE_LOCAL_DECRYPT_REMOTE}:${RCLONE_LOCAL_DECRYPT_DIR}" \
-   "to /mounts/local-decrypt ..." | info
+echo "Mounting local-decrypt..." | info
 
 set -x
-# Move stdout to 3 to notify s6 of readiness
-exec fdmove 2 1 \
-      fdmove -c 1 3 \
+exec s6-notifyoncheck -n 1000 \
+      fdmove 2 1 \
         rclone mount \
           --config=/tmp/rcloneconfig/rclone.conf \
           -v \

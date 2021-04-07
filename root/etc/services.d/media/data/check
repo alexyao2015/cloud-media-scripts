@@ -1,0 +1,6 @@
+#!/usr/bin/with-contenv sh
+
+if stat --file-system --format=%T /data/media | grep fuseblk > /dev/null; then
+    exit # media is mounted
+fi
+exit 1 # media is not mounted

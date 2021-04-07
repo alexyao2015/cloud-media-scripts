@@ -1,6 +1,13 @@
 <!--<a href="https://travis-ci.com/alexyao2015/cloud-media-scripts"><img alt="Travis CI builds" src="https://travis-ci.com/alexyao2015/cloud-media-scripts.svg?branch=master"></a>-->
 <a href="https://github.com/alexyao2015/cloud-media-scripts/actions"><img alt="GitHub Actions Build" src="https://github.com/alexyao2015/cloud-media-scripts/workflows/Deploy/badge.svg"></a>
 <a href="https://hub.docker.com/r/yaoa/cloud-media-scripts"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/yaoa/cloud-media-scripts.svg"></a>
+# Mounts
+
+Mount /data with config folder inside. Media folder will be mounted to
+/data/media
+Config should be located at /data/config
+Logs will be stored at /logs
+
 # Usage
 
 Default settings use ~100GB for local media, remove atleast 80 GB and Plexdrive chunks and cache are removed after 24 hours:

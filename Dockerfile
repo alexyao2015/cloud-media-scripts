@@ -134,15 +134,17 @@ RUN chmod a+x /usr/bin/* && \
 RUN mkdir -p \
         /mounts/local-decrypt \
         /mounts/cloud-decrypt \
-        /mounts/media \
+        /data \
         /log \
         /tmp/rcloneconfig \
     && chmod 755 \
         /mounts \
+        /data \
         /log \
         /tmp/rcloneconfig \
     && chown abc:abc \
         /mounts \
+        /data \
         /tmp/rcloneconfig
 
 # System Vars
@@ -170,7 +172,11 @@ ENV \
     CRON_RMDELETE_TIME="30 6 * * *" \
     CRON_DEDUPE_TIME="0 6 * * *" \
     CRON_MIRROR_TIME="0 6 * * *" \
-    CRON_EMPTY_TRASH_TIME="0 0 31 2 0"
+    CRON_EMPTY_TRASH_TIME="0 0 31 2 0" \
+    PRECACHE_ENABLED=1 \
+    PRECACHE_VFS_DIR="" \
+    PRECACHE_FIND_DIR="/mounts/cloud-decrypt" \
+    PRECACHE_USE_RC=1
 
 # Plex
 ENV PLEX_URL="" \

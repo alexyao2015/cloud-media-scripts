@@ -1,0 +1,6 @@
+#!/usr/bin/with-contenv sh
+
+if stat --file-system --format=%T /mounts/local-decrypt | grep fuseblk > /dev/null; then
+    exit # local-decrypt is mounted
+fi
+exit 1 # local-decrypt is not mounted

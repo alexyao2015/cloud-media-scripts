@@ -10,6 +10,17 @@
 
 /bin/s6-svwait -U /var/run/s6/services/cloud-decrypt
 
-echo "Running vfs/refresh..." | info
-s6-setuidgid abc rclone rc vfs/refresh recursive=true
-echo "vfs/refresh complete..." | info
+if [ "${PRECACHE_ENABLED}" == "1" ]; then
+  if [ "${PRECACHE_USE_RC}" == "1" ]; then
+    echo "Running precache using vfs/refresh..." | info
+    if [ -z "${PRECACHE_VFS_DIR}" ]; then
+      s6-setuidgid abc rclone rc vfs/refresh recursive=true
+    else
+      s6-setuidgid abc rclone rc vfs/refresh dir="${PRECACHE_VFS_DIR}" recursive=true
+    fi
+  else
+    echo "Running precache using find..." | info
+    /usr/bin/find "${PRECACHE_FIND_DIR}"
+  fi
+  echo "Precache complete!" | info
+fi

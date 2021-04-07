@@ -6,5 +6,5 @@
 # ==============================================================================
 
 echo "Terminating media..." | info
-fusermount -uz /mounts/media
+fusermount -uz /data/media
 s6-svscanctl -t /var/run/s6/services
