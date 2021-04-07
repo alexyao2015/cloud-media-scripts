@@ -7,7 +7,6 @@
 
 /bin/s6-svwait -U /var/run/s6/services/media
 
-check_rclone_cloud
 check_rclone_mirror
 
 # Syncing Google Drive with mirror endpoint

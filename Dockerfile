@@ -152,7 +152,8 @@ ENV \
     RCLONE_VFS_READ_OPTIONS="--buffer-size=128M --dir-cache-time=72h --poll-interval=60s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 -vv" \
     RCLONE_MASK="000" \
     MAX_LOG_SIZE_BYTES=1000000 \
-    MAX_LOG_NUMBER=10
+    MAX_LOG_NUMBER=10 \
+    RCLONE_MOUNT_LOCAL_DECRYPT=1
 
 # User Vars
 ENV \
@@ -173,7 +174,8 @@ ENV \
     PRECACHE_ENABLED=1 \
     PRECACHE_VFS_DIR="" \
     PRECACHE_FIND_DIR="/mounts/cloud-decrypt" \
-    PRECACHE_USE_RC=1
+    PRECACHE_USE_RC=1 \
+    CONTAINER_START_RCLONE_CONFIG=0
 
 # Plex
 ENV PLEX_URL="" \

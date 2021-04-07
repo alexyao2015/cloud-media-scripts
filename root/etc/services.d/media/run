@@ -5,8 +5,11 @@
 # Mounts the media directory (final merged directory) using mergerfs
 # ==============================================================================
 
+if [ "${RCLONE_MOUNT_LOCAL_DECRYPT}" -eq "1" ]; then
+  /bin/s6-svc -u /var/run/s6/services/local-decrypt
+  /bin/s6-svwait -U /var/run/s6/services/local-decrypt
+fi
 /bin/s6-svwait -U /var/run/s6/services/cloud-decrypt
-/bin/s6-svwait -U /var/run/s6/services/local-decrypt
 
 # Need to ensure that media isn't currently mounted before mounting
 fusermount -uz /data/media > /dev/null 2>&1

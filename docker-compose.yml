@@ -8,6 +8,7 @@ services:
     volumes:
       - ./scripts-data/config:/config
       - ./scripts-data/log:/log
+#      - ./scripts-data/data:/mounts/local-decrypt
     cap_add:
       - SYS_ADMIN
       - MKNOD

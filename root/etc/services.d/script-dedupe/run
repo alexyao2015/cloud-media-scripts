@@ -7,8 +7,6 @@
 
 /bin/s6-svwait -U /var/run/s6/services/media
 
-check_rclone_cloud
-
 rclone_config="--config=/tmp/rcloneconfig/rclone.conf"
 rclone_dedupe_options="${rclone_config} --dedupe-mode $(printenv DEDUPE_MODE) --tpslimit $(printenv DEDUPE_TPS_LIMIT) -v"
 # Dedupe Google Drive with defined location
