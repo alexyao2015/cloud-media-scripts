@@ -4,6 +4,12 @@ log() {
   echo "${1}" | s6-tai64n | s6-tai64nlocal | cat
 }
 
+logtime() {
+  while read -r data_in; do
+    log "${1}${data_in}"
+  done
+}
+
 # init service logtext
 init() {
   while read -r data_in; do
