@@ -1,8 +1,10 @@
 #!/usr/bin/with-contenv sh
+. "/usr/local/bin/logger"
 # ==============================================================================
 # media
 # Take down the S6 supervision tree if media goes down
 # ==============================================================================
 
-echo "Mergerfs went down, shutting down media! Exiting..." | error
+echo "Terminating media..." | info
+fusermount -uz /mounts/media
 s6-svscanctl -t /var/run/s6/services

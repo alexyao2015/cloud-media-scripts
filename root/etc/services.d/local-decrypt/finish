@@ -1,7 +1,10 @@
 #!/usr/bin/with-contenv sh
+. "/usr/local/bin/logger"
 # ==============================================================================
 # local-decrypt
 # Take down the S6 supervision tree if local-decrypt goes down
 # ==============================================================================
 
+echo "Terminating local-decrypt..." | info
+fusermount -uz /mounts/local-decrypt
 s6-svscanctl -t /var/run/s6/services

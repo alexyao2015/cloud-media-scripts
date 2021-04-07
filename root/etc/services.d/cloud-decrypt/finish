@@ -4,4 +4,6 @@
 # Take down the S6 supervision tree if local-decrypt goes down
 # ==============================================================================
 
+echo "Terminating cloud-decrypt..." | info
+fusermount -uz /mounts/cloud-decrypt
 s6-svscanctl -t /var/run/s6/services

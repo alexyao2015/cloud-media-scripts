@@ -81,8 +81,6 @@ ENV COPY_CHECKERS="4" \
     COPY_DRIVE_CHUNK_SIZE="32M" \
     RCLONE_CLOUD_ENDPOINT="cloud:" \
     RCLONE_LOCAL_ENDPOINT="local-decrypt:" \
-    RCLONE_MASK="000" \
-    RCLONE_VFS_READ_OPTIONS="--buffer-size=128M --dir-cache-time=72h --poll-interval=60s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 -vv" \
     RCLONE_PRECACHE="1" \
     RCLONE_FIND_PRECACHE_DIR="/local-media" \
     RCLONE_VFS_PRECACHE_DIR="" \
@@ -148,6 +146,8 @@ RUN mkdir -p \
 # System Vars
 ENV \
     MERGERFS_OPTIONS="splice_move,atomic_o_trunc,auto_cache,big_writes,default_permissions,direct_io,nonempty,allow_other,sync_read,category.create=ff,category.search=ff,minfreespace=0" \
+    RCLONE_VFS_READ_OPTIONS="--buffer-size=128M --dir-cache-time=72h --poll-interval=60s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 -vv" \
+    RCLONE_MASK="000" \
     MAX_LOG_SIZE_BYTES=1000000 \
     MAX_LOG_NUMBER=10
 

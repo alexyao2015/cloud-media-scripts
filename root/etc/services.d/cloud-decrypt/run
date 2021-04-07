@@ -20,8 +20,8 @@ exec fdmove -c 1 3 \
   rclone mount \
     --config=/tmp/rcloneconfig/rclone.conf \
     --allow-other \
-    --uid "${_puid:-911}" \
-    --gid "${_pgid:-911}" \
+    --uid "${PUID:-911}" \
+    --gid "${PGID:-911}" \
     --umask "${RCLONE_MASK}" \
     "${RCLONE_VFS_READ_OPTIONS}" \
     "${cloud_decrypt_remote}:${cloud_decrypt_dir}" \
