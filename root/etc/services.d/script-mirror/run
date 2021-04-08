@@ -19,11 +19,12 @@ rclone_cloud_encrypted_endpoint="${CLOUD_ENCYPTED_ENDPOINT}:${MIRROR_SUBDIR}"
 # Syncing Google Drive with mirror endpoint
 echo "###### Begin Mirror ######" | info
 echo "Syncing from ${rclone_cloud_encrypted_endpoint} to ${rclone_mirror_encrypted_endpoint}" | info
-rclone sync \
-  --config=/tmp/rcloneconfig/rclone.conf \
-  ${MIRROR_OPTIONS} \
-  "${rclone_cloud_encrypted_endpoint}" \
-  "${rclone_mirror_encrypted_endpoint}" &
+fdmove 2 1 \
+  rclone sync \
+    --config=/tmp/rcloneconfig/rclone.conf \
+    ${MIRROR_OPTIONS} \
+    "${rclone_cloud_encrypted_endpoint}" \
+    "${rclone_mirror_encrypted_endpoint}" &
 child=$!
 wait "$child"
 echo "Sync from ${rclone_cloud_encrypted_endpoint} to ${rclone_mirror_encrypted_endpoint} Complete" | info

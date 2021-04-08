@@ -23,7 +23,7 @@ find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort
 
 		# Find the pathname relative to the root of your remote and store filename
 		filename=${n//\/mounts\/local-decrypt\/} # path without /mounts/local-decrypt/
-		destpath="$(dirname "$n" | sed -e s@/mounts/local-decrypt/@@g)"
+		destpath="$(dirname "$n" | sed -e s@/mounts/local-decrypt@@g | sed -e s@^/@@g)"
 
 		# Skip hidden or partial files.
 		case "$n" in
@@ -42,7 +42,7 @@ find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort
     fi
 
     # If file is opened by another process, wait until it isn't.
-    while [ -n "$(lsof "$n")" ]; do
+    while lsof | cut -f2 | grep -q "^$n$"; do
       echo "File -> ${n} in use. Retrying in 10 seconds." | info
       sleep 10
     done
@@ -50,16 +50,17 @@ find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort
 		# Copy file to remote destination[s], retaining path
 		echo "Copying File: ${n} to: ${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" | info
 
- 		rclone copy \
-      --config=/tmp/rcloneconfig/rclone.conf \
-      ${RCLONE_SCRIPT_OPTIONS} \
-      "$n" \
-      "${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" &
+ 		fdmove 2 1 \
+ 		  rclone copy \
+        --config=/tmp/rcloneconfig/rclone.conf \
+        ${RCLONE_SCRIPT_OPTIONS} \
+        "$n" \
+        "${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" &
     child=$!
     wait "$child"
 
 		fileSize=$(du -s "$n" | awk '{print $1}') # Size in kb
-		((addedSize += fileSize)) # size in kb
+		addedSize=$((addedSize + fileSize)) # size in kb
 
     if [[ "${fileSize}" -gt "1000000" ]]; then
       echo "$((fileSize / 1000 / 1000)) GB uploaded." | info
