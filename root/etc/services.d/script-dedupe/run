@@ -5,6 +5,13 @@
 # Uploads local-decrypt to cloud
 # ==============================================================================
 
+_term() {
+  kill -TERM "$child" 2>/dev/null
+  exit
+}
+
+trap _term SIGTERM
+
 /bin/s6-svwait -U /var/run/s6/services/media
 
 # Dedupe Google Drive with defined location
@@ -14,7 +21,9 @@ if [ "${DEDUPE_CLOUD_DECRYPT}" == "1" ]; then
   rclone dedupe \
     --config=/tmp/rcloneconfig/rclone.conf \
     ${DEDUPE_OPTIONS} \
-    "${RCLONE_CLOUD_DECRYPT_REMOTE}:"
+    "${RCLONE_CLOUD_DECRYPT_REMOTE}:" &
+  child=$!
+  wait "$child"
   echo "Deduping Google Drive at ${RCLONE_CLOUD_DECRYPT_REMOTE} Complete" | info
 fi
 if [ "${DEDUPE_MIRROR_REMOTE}" == "1" ]; then
@@ -22,7 +31,9 @@ if [ "${DEDUPE_MIRROR_REMOTE}" == "1" ]; then
 	rclone dedupe \
 	  --config=/tmp/rcloneconfig/rclone.conf \
 	  ${DEDUPE_OPTIONS} \
-	  "${RCLONE_MIRROR_DECRYPT_REMOTE}:"
+	  "${RCLONE_MIRROR_DECRYPT_REMOTE}:" &
+  child=$!
+  wait "$child"
 	echo "Deduping Google Drive at ${RCLONE_MIRROR_DECRYPT_REMOTE} Complete" | info
 fi
 echo "###### Dedupe Completed ######" | info

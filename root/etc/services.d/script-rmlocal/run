@@ -5,6 +5,13 @@
 # Uploads local-decrypt to cloud
 # ==============================================================================
 
+_term() {
+  kill -TERM "$child" 2>/dev/null
+  exit
+}
+
+trap _term SIGTERM
+
 /bin/s6-svwait -U /var/run/s6/services/media
 
 echo "###### Begin rmlocal ######" | info
@@ -55,7 +62,9 @@ find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort
       --config=/tmp/rcloneconfig/rclone.conf \
       ${RCLONE_SCRIPT_OPTIONS} \
       "$n" \
-      "${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}"
+      "${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" &
+    child=$!
+    wait "$child"
 
     fileSize=$(du -s "$n" | awk '{print $1}') # Size in kb
     # Increment moved size counter which is used to display the amount uploaded

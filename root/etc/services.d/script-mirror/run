@@ -6,9 +6,11 @@
 # ==============================================================================
 
 _term() {
-  echo "Caught SIGTERM signal!"
   kill -TERM "$child" 2>/dev/null
+  exit
 }
+
+trap _term SIGTERM
 
 /bin/s6-svwait -U /var/run/s6/services/media
 rclone_mirror_encrypted_endpoint="${MIRROR_ENCRYPTED_ENDPOINT}:${MIRROR_SUBDIR}" # use encrypted mount so server side copying works
@@ -21,6 +23,8 @@ rclone sync \
   --config=/tmp/rcloneconfig/rclone.conf \
   ${MIRROR_OPTIONS} \
   "${rclone_cloud_encrypted_endpoint}" \
-  "${rclone_mirror_encrypted_endpoint}"
+  "${rclone_mirror_encrypted_endpoint}" &
+child=$!
+wait "$child"
 echo "Sync from ${rclone_cloud_encrypted_endpoint} to ${rclone_mirror_encrypted_endpoint} Complete" | info
 echo "###### Mirror Completed ######" | info
