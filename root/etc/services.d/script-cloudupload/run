@@ -8,16 +8,15 @@
 /bin/s6-svwait -U /var/run/s6/services/media
 
 addedSize=0
-oldSize=0
 
-echo "[ $(date $(printenv DATE_FORMAT)) ] ###### Start cloud upload ######"
+echo "###### Start cloud upload ######" | info
 # Generate filelist and iterate through it...
-find "${local_decrypt_dir}" -type f -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | awk '{$1=$2=$3=""; print $0}' |
+find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort -n | cut -d ' ' -f5 |
 	while read -r n; do
 
 		# Find the pathname relative to the root of your remote and store filename
-		filename="$(echo "$n" | sed -e s@"${local_decrypt_dir}"@@)"
-		destpath="$(dirname "$n" | sed -e s@"${local_decrypt_dir}"@@)"
+		filename=${n//\/mounts\/local-decrypt\/} # path without /mounts/local-decrypt/
+		destpath="$(dirname "$n" | sed -e s@/mounts/local-decrypt/@@g)"
 
 		# Skip hidden or partial files.
 		case "$n" in
@@ -30,39 +29,36 @@ find "${local_decrypt_dir}" -type f -print0 | xargs -0 stat --format '%Y :%y %n'
 			(*.fuse_hidden*) continue ;;
 		esac
 
-		if [ -f "${cloud_decrypt_dir}${filename}" ]; then
-                        continue
-                fi
+    # Ensure file does not already exist on cloud dir
+		if [ -f "/mounts/cloud-decrypt/${filename}" ]; then
+      continue
+    fi
 
-		# If file is opened by another process, wait until it isn't.
-		while [ "$(lsof "$n" >/dev/null 2>&1)" ] || \
-			[ "$(lsof "${local_decrypt_dir}/${n}" >/dev/null 2>&1)" ] || \
-			[ "$(lsof "${local_media_dir}/${n}" >/dev/null 2>&1)" ]; do
-			echo "[ $(date $(printenv DATE_FORMAT)) ] File -> ${n} in use. Retrying in 10 seconds."
-			sleep 10
-		done
+    # If file is opened by another process, wait until it isn't.
+    while [ -n "$(lsof "$n")" ]; do
+      echo "File -> ${n} in use. Retrying in 10 seconds." | info
+      sleep 10
+    done
 
 		# Copy file to remote destination[s], retaining path
-		echo "[ $(date $(printenv DATE_FORMAT)) ] Uploading File: ${cloud_decrypt_dir}${filename} to: ${rclone_cloud_endpoint}${destpath}"
+		echo "Copying File: ${n} to: ${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" | info
 
- 		rclone copy $rclone_options "$@" "$n" "${rclone_cloud_endpoint}${destpath}"
+ 		rclone copy \
+      --config=/tmp/rcloneconfig/rclone.conf \
+      ${RCLONE_SCRIPT_OPTIONS} \
+      "$n" \
+      "${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}"
 
-		fileSize=$(du -sb "$n" | awk '{print $1}')
-                addedSize=$((addedSize + fileSize))
+		fileSize=$(du -s "$n" | awk '{print $1}') # Size in kb
+		((addedSize += fileSize)) # size in kb
 
-                sizeInMb=$((addedSize / 1000 / 1000))
-                diffSize=$((addedSize - oldSize))
-                if [[ "${sizeInMb}" -gt 1000 ]]; then
-                        if [[ "${diffSize}" -gt "1000000000" ]]; then # greater than 1 GB
-                                oldSize=$addedSize
-                                echo "[ $(date $(printenv DATE_FORMAT)) ] $((sizeInMb / 1000)) GB uploaded"
-                        fi
-                elif [[ "${diffSize}" -gt "100000000" ]]; then # greater than 100 MB
-                        oldSize=$addedSize
-                        echo "[$(date $(printenv DATE_FORMAT)) ] ${sizeInMb} MB uploaded"
-                fi
+    if [[ "${fileSize}" -gt "1000000" ]]; then
+      echo "$((fileSize / 1000 / 1000)) GB uploaded." | info
+    elif [[ "${fileSize}" -gt "100000" ]]; then # greater than 100 MB
+      echo "$((fileSize / 1000)) MB uploaded." | info
+    else # Show in KB
+      echo "$((fileSize)) KB uploaded." | info
+    fi
 	done
 
-echo "[ $(date $(printenv DATE_FORMAT)) ] ###### Cloud upload ended successfully ######"
-
-exit 0
+echo "###### Cloud upload ended successfully ######" | info

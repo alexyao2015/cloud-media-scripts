@@ -7,6 +7,8 @@ Config mounted at /config
 Logs at /log
 Final merged media will be at /data/media
 
+rmdelete triggers cloudupload after finish
+
 # Usage
 
 Default settings use ~100GB for local media, remove atleast 80 GB and Plexdrive chunks and cache are removed after 24 hours:

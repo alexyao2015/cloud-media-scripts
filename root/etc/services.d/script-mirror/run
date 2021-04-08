@@ -5,16 +5,22 @@
 # Uploads local-decrypt to cloud
 # ==============================================================================
 
-/bin/s6-svwait -U /var/run/s6/services/media
+_term() {
+  echo "Caught SIGTERM signal!"
+  kill -TERM "$child" 2>/dev/null
+}
 
-check_rclone_mirror
+/bin/s6-svwait -U /var/run/s6/services/media
+rclone_mirror_encrypted_endpoint="${MIRROR_ENCRYPTED_ENDPOINT}:${MIRROR_SUBDIR}" # use encrypted mount so server side copying works
+rclone_cloud_encrypted_endpoint="${CLOUD_ENCYPTED_ENDPOINT}:${MIRROR_SUBDIR}"
 
 # Syncing Google Drive with mirror endpoint
-echo "[ $(date $(printenv DATE_FORMAT)) ] ###### Begin Mirror ######"
-echo "[ $(date $(printenv DATE_FORMAT)) ] Syncing from ${rclone_cloud_encrypted_endpoint} to ${rclone_mirror_encrypted_endpoint}"
-rclone sync $rclone_mirror_options "${rclone_cloud_encrypted_endpoint}" "${rclone_mirror_encrypted_endpoint}"
-echo "[ $(date $(printenv DATE_FORMAT)) ] Sync from ${rclone_cloud_encrypted_endpoint} to ${rclone_mirror_encrypted_endpoint} Complete"
-echo "[ $(date $(printenv DATE_FORMAT)) ] ###### Mirror Completed ######"
-
-# success!
-exit 0
+echo "###### Begin Mirror ######" | info
+echo "Syncing from ${rclone_cloud_encrypted_endpoint} to ${rclone_mirror_encrypted_endpoint}" | info
+rclone sync \
+  --config=/tmp/rcloneconfig/rclone.conf \
+  ${MIRROR_OPTIONS} \
+  "${rclone_cloud_encrypted_endpoint}" \
+  "${rclone_mirror_encrypted_endpoint}"
+echo "Sync from ${rclone_cloud_encrypted_endpoint} to ${rclone_mirror_encrypted_endpoint} Complete" | info
+echo "###### Mirror Completed ######" | info

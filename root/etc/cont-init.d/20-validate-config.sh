@@ -27,11 +27,36 @@ else
 
   fi
 
-  if ! rclone --config=/tmp/rcloneconfig/rclone.conf listremotes | grep -q "^${RCLONE_CLOUD_DECRYPT_REMOTE}:$"; then
-    echo "Could not find local-decrypt remote in rclone.conf at /config/rclone.conf!" | error "[${program_name}] "
-    echo "Add a cloud-decrypt remote named \"${RCLONE_CLOUD_DECRYPT_REMOTE}\" or modify the" | error "[${program_name}] "
-    echo "RCLONE_CLOUD_DECRYPT_REMOTE environment variable to the correct remote" | error "[${program_name}] "
-    check_failed=1
+  # Only check mirror decrypt if enabled
+  if [ "${RCLONE_USE_MIRROR_AS_CLOUD_REMOTE}" == "1" ]; then
+    if ! rclone --config=/tmp/rcloneconfig/rclone.conf listremotes | grep -q "^${RCLONE_MIRROR_DECRYPT_REMOTE}:$"; then
+      echo "Could not find mirror-decrypt remote in rclone.conf at /config/rclone.conf!" | error "[${program_name}] "
+      echo "Add a mirror-decrypt remote named \"${RCLONE_MIRROR_DECRYPT_REMOTE}\" or modify the" | error "[${program_name}] "
+      echo "RCLONE_MIRROR_DECRYPT_REMOTE environment variable to the correct remote" | error "[${program_name}] "
+      check_failed=1
+    fi
+  else
+    if ! rclone --config=/tmp/rcloneconfig/rclone.conf listremotes | grep -q "^${RCLONE_CLOUD_DECRYPT_REMOTE}:$"; then
+      echo "Could not find cloud-decrypt remote in rclone.conf at /config/rclone.conf!" | error "[${program_name}] "
+      echo "Add a cloud-decrypt remote named \"${RCLONE_CLOUD_DECRYPT_REMOTE}\" or modify the" | error "[${program_name}] "
+      echo "RCLONE_CLOUD_DECRYPT_REMOTE environment variable to the correct remote" | error "[${program_name}] "
+      check_failed=1
+    fi
+  fi
+
+  if [ "${MIRROR_VALIDATE_CONFIG}" == "1" ]; then
+    if ! rclone --config=/tmp/rcloneconfig/rclone.conf listremotes | grep -q "^${MIRROR_ENCRYPTED_ENDPOINT}:$"; then
+      echo "Could not find encrypted mirror remote in rclone.conf at /config/rclone.conf!" | error "[${program_name}] "
+      echo "Add a encrypted mirror remote remote named \"${MIRROR_ENCRYPTED_ENDPOINT}\" or modify the" | error "[${program_name}] "
+      echo "MIRROR_ENCRYPTED_ENDPOINT environment variable to the correct remote" | error "[${program_name}] "
+      check_failed=1
+    fi
+    if ! rclone --config=/tmp/rcloneconfig/rclone.conf listremotes | grep -q "^${CLOUD_ENCYPTED_ENDPOINT}:$"; then
+      echo "Could not find encrypted cloud remote in rclone.conf at /config/rclone.conf!" | error "[${program_name}] "
+      echo "Add a encrypted cloud remote remote named \"${CLOUD_ENCYPTED_ENDPOINT}\" or modify the" | error "[${program_name}] "
+      echo "CLOUD_ENCYPTED_ENDPOINT environment variable to the correct remote" | error "[${program_name}] "
+      check_failed=1
+    fi
   fi
 
 fi
@@ -43,25 +68,3 @@ if [ "${check_failed}" -eq "1" ]; then
   echo '-e CONTAINER_START_RCLONE_CONFIG=1 ghcr.io/alexyao2015/cloud-media-scripts' | error "[${program_name}] "
   exit 1
 fi
-
-#check_rclone_mirror() {
-#  if [ "$(printenv MIRROR_MEDIA)" != "0" ]; then
-#    if [[ ! "$(printenv RCLONE_MIRROR_ENDPOINT)" == *: ]]; then
-#      printf "\n\n"
-#      echo "Missing colon (:) in RCLONE_MIRROR_ENDPOINT ($(printenv RCLONE_MIRROR_ENDPOINT))"
-#      echo "Run: docker exec -ti <DOCKER_CONTAINER> rclone_setup"
-#      printf "\n\n"
-#
-#      exit 02
-#    fi
-#
-#    if [ "$(rclone listremotes $rclone_config | grep $(printenv RCLONE_MIRROR_ENDPOINT) | wc -l)" == "0" ]; then
-#      printf "\n\n"
-#      echo "RCLONE_MIRROR_ENDPOINT ($(printenv RCLONE_MIRROR_ENDPOINT)) endpoint has not been created within rclone"
-#      echo "Run: docker exec -ti <DOCKER_CONTAINER> rclone_setup"
-#      printf "\n\n"
-#
-#      exit 02
-#    fi
-#  fi
-#}

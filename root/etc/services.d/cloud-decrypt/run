@@ -9,8 +9,8 @@ cloud_decrypt_remote="${RCLONE_CLOUD_DECRYPT_REMOTE}"
 cloud_decrypt_dir="${RCLONE_CLOUD_DECRYPT_DIR}"
 
 if [ "${RCLONE_USE_MIRROR_AS_CLOUD_REMOTE}" == "1" ]; then
-  cloud_decrypt_remote="${RCLONE_MIRROR_REMOTE}"
-  cloud_decrypt_dir="${RCLONE_MIRROR_DIR}"
+  cloud_decrypt_remote="${RCLONE_MIRROR_DECRYPT_REMOTE}"
+  cloud_decrypt_dir="${RCLONE_MIRROR_DECRYPT_DIR}"
 fi
 
 echo "Mounting cloud-decrypt..." | info

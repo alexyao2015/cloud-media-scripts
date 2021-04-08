@@ -64,66 +64,22 @@ RUN set -x \
 FROM alpine:latest
 
 RUN apk add --no-cache \
-        bc \
-        ca-certificates \
+        curl \
         fuse \
-        openssl \
         shadow \
-        tzdata \
-    && sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
+        tzdata
 
-COPY --from=mergerfsbuilder /mergerfs/install/ /usr/local/
 COPY --from=rclonedownloader /rclonedownloader/rclone /usr/bin
+COPY --from=mergerfsbuilder /mergerfs/install/bin /bin
 COPY --from=s6downloader /s6downloader /
 COPY --from=rootfs-converter /rootfs /
 
+RUN sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
 
-####################
-# ENVIRONMENT VARIABLES
-####################
-
-# Rclone; local-decrypt not used
-ENV COPY_CHECKERS="4" \
-    COPY_TRANSFERS="4" \
-    COPY_DRIVE_CHUNK_SIZE="32M" \
-    RCLONE_CLOUD_ENDPOINT="cloud:" \
-    RCLONE_LOCAL_ENDPOINT="local-decrypt:" \
-    RCLONE_PRECACHE="1" \
-    RCLONE_FIND_PRECACHE_DIR="/local-media" \
-    RCLONE_VFS_PRECACHE_DIR="" \
-    RCLONE_PRECACHE_METHOD=""
-#or VFS or FIND
-
-# Rclone Mirror Settings, if backup mount set to 1 will use mirror endpoint
-ENV MIRROR_MEDIA="0" \
-    RCLONE_MIRROR_ENDPOINT="mirror:" \
-    MIRROR_BWLIMIT="100M" \
-    MIRROR_TRANSFERS="4" \
-    MIRROR_TPS_LIMIT="8" \
-    MIRROR_TPS_LIMIT_BURST="8" \
-    RCLONE_BACKUP_MOUNT="0" \
-    MIRROR_ENCRYPTED_ENDPOINT="mirror-copy-raw:" \
-    CLOUD_ENCYPTED_ENDPOINT="mirror-copy-cloud-raw:" \
-    MIRROR_SUBDIR="Sync"
-
-# Time format
-ENV DATE_FORMAT="+%F@%T" \
-    TZ="America/Chicago"
-
-# Local files removal rmlocal
-ENV REMOVE_LOCAL_FILES_BASED_ON="space" \
-    REMOVE_LOCAL_FILES_WHEN_SPACE_EXCEEDS_GB="100" \
-    REMOVE_LOCAL_FILES_AFTER_DAYS="30"
-
-
-####################
-# SCRIPTS
-####################
-
-RUN chmod a+x /usr/bin/* && \
-    groupmod -g 1000 users && \
-	useradd -u 911 -U -d / -s /bin/false abc && \
-	usermod -G users abc
+RUN chmod a+x /usr/bin/* \
+    && groupmod -g 1000 users \
+    && useradd -u 911 -U -d / -s /bin/false abc \
+    && usermod -G users abc
 
 RUN mkdir -p \
         /mounts/local-decrypt \
@@ -149,39 +105,67 @@ ENV \
     S6_FIX_ATTRS_HIDDEN=1 \
     S6_BEHAVIOUR_IF_STAGE2_FAILS=2 \
     MERGERFS_OPTIONS="splice_move,atomic_o_trunc,auto_cache,big_writes,default_permissions,direct_io,nonempty,allow_other,sync_read,category.create=ff,category.search=ff,minfreespace=0" \
-    RCLONE_VFS_READ_OPTIONS="--buffer-size=128M --dir-cache-time=72h --poll-interval=60s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 -vv" \
     RCLONE_MASK="000" \
     MAX_LOG_SIZE_BYTES=1000000 \
     MAX_LOG_NUMBER=10 \
     RCLONE_MOUNT_LOCAL_DECRYPT=1
 
+#############
 # User Vars
+#############
+# Timezone
 ENV \
+    TZ="America/Chicago"
+
+# Rclone mount config
+ENV \
+    RCLONE_VFS_READ_OPTIONS="--buffer-size=128M --dir-cache-time=72h --poll-interval=60s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 -vv" \
     RCLONE_LOCAL_DECRYPT_REMOTE="local-decrypt" \
     RCLONE_LOCAL_DECRYPT_DIR="/mnt/local-decrypt" \
     RCLONE_CLOUD_DECRYPT_REMOTE="cloud" \
     RCLONE_CLOUD_DECRYPT_DIR="" \
-    RCLONE_MIRROR_REMOTE="mirror" \
-    RCLONE_MIRROR_DIR="" \
-    DEDUPE_CLOUD_DECRYPT="1" \
-    DEDUPE_MIRROR_REMOTE="0" \
-    DEDUPE_SETTINGS="--dedupe-mode largest --tpslimit 4 -v" \
-    CRON_CLOUDUPLOAD_TIME="30 1 * * *" \
-    CRON_RMDELETE_TIME="30 6 * * *" \
-    CRON_DEDUPE_TIME="0 6 * * *" \
-    CRON_MIRROR_TIME="0 6 * * *" \
-    CRON_EMPTY_TRASH_TIME="0 0 31 2 0" \
+    RCLONE_MIRROR_DECRYPT_REMOTE="mirror" \
+    RCLONE_MIRROR_DECRYPT_DIR=""
+
+# Precache Config
+ENV \
     PRECACHE_ENABLED=1 \
     PRECACHE_VFS_DIR="" \
     PRECACHE_FIND_DIR="/mounts/cloud-decrypt" \
-    PRECACHE_USE_RC=1 \
-    CONTAINER_START_RCLONE_CONFIG=0
+    PRECACHE_USE_RC=1
+
+# Dedupe Config
+ENV \
+    DEDUPE_OPTIONS="--dedupe-mode largest --tpslimit 4 -v" \
+    CRON_DEDUPE_TIME="0 6 * * *" \
+    DEDUPE_CLOUD_DECRYPT="1" \
+    DEDUPE_MIRROR_REMOTE="0"
+
+# Rmlocal Config
+ENV \
+    RCLONE_SCRIPT_OPTIONS="--drive-chunk-size 32M --checkers 4 --transfers 4 -v" \
+    CRON_RMDELETE_TIME="30 6 * * *" \
+    RMLOCAL_MAX_SIZE_GB="100" \
+    CLOUD_UPLOAD_AFTER_RMLOCAL=1
+
+# Mirror from cloud -> mirror
+ENV \
+    MIRROR_OPTIONS="--transfers 4 --bwlimit 100M --tpslimit 8 --tpslimit-burst 8 --drive-server-side-across-configs -v" \
+    CRON_MIRROR_TIME="0 6 * * *" \
+    MIRROR_ENCRYPTED_ENDPOINT="mirror-raw" \
+    CLOUD_ENCYPTED_ENDPOINT="cloud-raw" \
+    MIRROR_SUBDIR="Sync" \
+    MIRROR_VALIDATE_CONFIG=1
 
 # Plex
-ENV PLEX_URL="" \
+ENV \
+    CRON_EMPTY_TRASH_TIME="0 0 31 2 0" \
+    PLEX_URL="" \
     PLEX_TOKEN=""
+
 # Temporary Config
 ENV \
-    RCLONE_USE_MIRROR_AS_CLOUD_REMOTE="0"
+    RCLONE_USE_MIRROR_AS_CLOUD_REMOTE="0" \
+    CONTAINER_START_RCLONE_CONFIG=0
 
 CMD ["/init"]
