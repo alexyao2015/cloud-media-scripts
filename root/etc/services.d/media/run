@@ -11,13 +11,7 @@ if [ "${RCLONE_MOUNT_LOCAL_DECRYPT}" -eq "1" ]; then
 fi
 /bin/s6-svwait -U /var/run/s6/services/cloud-decrypt
 
-# Need to ensure that media isn't currently mounted before mounting
-fusermount -uz /data/media > /dev/null 2>&1
-
 echo "Mounting media..." | info
-
-# Ensure media dir exists
-mkdir -p /data/media
 
 set -x
 exec s6-notifyoncheck -n 1000 \
@@ -26,4 +20,4 @@ exec s6-notifyoncheck -n 1000 \
         -o uid="${PUID:-911}" -o gid="${PGID:-911}" \
         -o "${MERGERFS_OPTIONS}" \
         /mounts/local-decrypt:/mounts/cloud-decrypt \
-        /data/media
+        /data/mnt

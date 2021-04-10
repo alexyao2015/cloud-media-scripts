@@ -84,7 +84,7 @@ RUN chmod a+x /usr/bin/* \
 RUN mkdir -p \
         /mounts/local-decrypt \
         /mounts/cloud-decrypt \
-        /data/media \
+        /data/mnt \
         /config \
         /log \
         /tmp/rcloneconfig \
