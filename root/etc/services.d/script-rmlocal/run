@@ -54,6 +54,9 @@ else
       # Find the pathname relative to the root of your remote and store filename
       destpath="$(dirname "$n" | sed -e s@/mounts/local-decrypt@@g | sed -e s@^/@@g)"
 
+      # Must calculate filesize before moving
+      fileSize=$(du -s "$n" | awk '{print $1}') # Size in kb
+
       echo "Copying File: ${n} to: ${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" | info
       # Move file to remote destination[s], retaining path
       fdmove 2 1 \
@@ -65,7 +68,6 @@ else
       child=$!
       wait "$child"
 
-      fileSize=$(du -s "$n" | awk '{print $1}') # Size in kb
       # Increment moved size counter which is used to display the amount uploaded
       movedSize=$((movedSize + fileSize)) # size in kb
       # Decrement current size which is used to check to see if should continue deleting
