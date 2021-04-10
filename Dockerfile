@@ -98,7 +98,9 @@ RUN mkdir -p \
         /mounts \
         /data \
         /config \
-        /tmp/rcloneconfig
+        /tmp/rcloneconfig \
+    && chown nobody:nobody \
+        /log
 
 # System Vars
 ENV \
