@@ -18,7 +18,7 @@ addedSize=0
 
 echo "###### Start cloud upload ######" | info
 # Generate filelist and iterate through it...
-find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort -n | cut -d ' ' -f5 |
+find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort -n | cut -d ' ' -f5- |
 	while read -r n; do
 
 		# Find the pathname relative to the root of your remote and store filename
