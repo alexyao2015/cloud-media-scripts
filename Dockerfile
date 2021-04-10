@@ -87,18 +87,15 @@ RUN mkdir -p \
         /data/mnt \
         /config \
         /log \
-        /tmp/rcloneconfig \
     && chmod 755 \
         /mounts \
         /data \
         /config \
         /log \
-        /tmp/rcloneconfig \
     && chown abc:abc \
         /mounts \
         /data \
         /config \
-        /tmp/rcloneconfig \
     && chown nobody:nobody \
         /log
 

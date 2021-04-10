@@ -20,7 +20,7 @@ set -x
 exec s6-notifyoncheck -n 1000 \
       fdmove 2 1 \
         rclone mount \
-          --config=/tmp/rcloneconfig/rclone.conf \
+          --config=/config/rclone.conf \
           --allow-other \
           --uid "${PUID:-911}" \
           --gid "${PGID:-911}" \

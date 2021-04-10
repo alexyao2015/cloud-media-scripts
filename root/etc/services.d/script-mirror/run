@@ -21,7 +21,7 @@ echo "###### Begin Mirror ######" | info
 echo "Syncing from ${rclone_cloud_encrypted_endpoint} to ${rclone_mirror_encrypted_endpoint}" | info
 fdmove 2 1 \
   rclone sync \
-    --config=/tmp/rcloneconfig/rclone.conf \
+    --config=/config/rclone.conf \
     ${MIRROR_OPTIONS} \
     "${rclone_cloud_encrypted_endpoint}" \
     "${rclone_mirror_encrypted_endpoint}" &

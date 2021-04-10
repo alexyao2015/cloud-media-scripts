@@ -11,7 +11,7 @@ set -x
 exec s6-notifyoncheck -n 1000 \
       fdmove 2 1 \
         rclone mount \
-          --config=/tmp/rcloneconfig/rclone.conf \
+          --config=/config/rclone.conf \
           -v \
           "${RCLONE_LOCAL_DECRYPT_REMOTE}:${RCLONE_LOCAL_DECRYPT_DIR}" \
           /mounts/local-decrypt

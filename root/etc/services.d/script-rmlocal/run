@@ -58,7 +58,7 @@ else
       # Move file to remote destination[s], retaining path
       fdmove 2 1 \
         rclone move \
-          --config=/tmp/rcloneconfig/rclone.conf \
+          --config=/config/rclone.conf \
           ${RCLONE_SCRIPT_OPTIONS} \
           "$n" \
           "${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" &

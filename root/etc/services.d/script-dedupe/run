@@ -20,7 +20,7 @@ if [ "${DEDUPE_CLOUD_DECRYPT}" == "1" ]; then
   echo "Deduping cloud-decrypt at ${RCLONE_CLOUD_DECRYPT_REMOTE}:" | info
   fdmove 2 1 \
     rclone dedupe \
-      --config=/tmp/rcloneconfig/rclone.conf \
+      --config=/config/rclone.conf \
       ${DEDUPE_OPTIONS} \
       "${RCLONE_CLOUD_DECRYPT_REMOTE}:" &
   child=$!
@@ -31,7 +31,7 @@ if [ "${DEDUPE_MIRROR_REMOTE}" == "1" ]; then
 	echo "Deduping mirror remote at ${RCLONE_MIRROR_DECRYPT_REMOTE}:" | info
 	fdmove 2 1 \
 	  rclone dedupe \
-      --config=/tmp/rcloneconfig/rclone.conf \
+      --config=/config/rclone.conf \
       ${DEDUPE_OPTIONS} \
       "${RCLONE_MIRROR_DECRYPT_REMOTE}:" &
   child=$!

@@ -14,10 +14,10 @@ if [ "${PRECACHE_ENABLED}" == "1" ]; then
   if [ "${PRECACHE_USE_RC}" == "1" ]; then
     if [ -z "${PRECACHE_VFS_DIR}" ]; then
       echo "Running precache using vfs/refresh for the entire mount..." | info
-      s6-setuidgid abc rclone rc --config=/tmp/rcloneconfig/rclone.conf vfs/refresh recursive=true
+      s6-setuidgid abc rclone rc --config=/config/rclone.conf vfs/refresh recursive=true
     else
       echo "Running precache using vfs/refresh for dir=${PRECACHE_VFS_DIR}..." | info
-      s6-setuidgid abc rclone rc --config=/tmp/rcloneconfig/rclone.conf vfs/refresh dir="${PRECACHE_VFS_DIR}" recursive=true
+      s6-setuidgid abc rclone rc --config=/config/rclone.conf vfs/refresh dir="${PRECACHE_VFS_DIR}" recursive=true
     fi
   else
     echo "Running precache using find..." | info

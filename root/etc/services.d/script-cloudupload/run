@@ -52,7 +52,7 @@ find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort
 
  		fdmove 2 1 \
  		  rclone copy \
-        --config=/tmp/rcloneconfig/rclone.conf \
+        --config=/config/rclone.conf \
         ${RCLONE_SCRIPT_OPTIONS} \
         "$n" \
         "${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" &
