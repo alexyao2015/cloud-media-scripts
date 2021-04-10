@@ -25,7 +25,7 @@ if [ "$maxSize" -gt "$currentSize" ]; then
 else
   freeup=$((currentSize - maxSize)) # Simply for informational purposes
 
-  echo "Removing a total of $((freeup / 1000 / 1000)) GB." | info
+  echo "Removing a total of $((freeup / 1000 / 1000)) GB of current size of  $((currentSize / 1000 / 1000)) GB." | info
 
   find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort -n | cut -d ' ' -f5- |
     while read -r n; do
