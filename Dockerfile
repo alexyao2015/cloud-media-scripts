@@ -141,7 +141,7 @@ ENV \
     DEDUPE_OPTIONS="--dedupe-mode largest --tpslimit 4 -v" \
     CRON_DEDUPE_TIME="0 6 * * *" \
     DEDUPE_CLOUD_DECRYPT="1" \
-    DEDUPE_MIRROR_REMOTE="0"
+    DEDUPE_MIRROR_REMOTE="1"
 
 # Rmlocal Config
 ENV \
