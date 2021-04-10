@@ -143,9 +143,14 @@ ENV \
 # Rmlocal Config
 ENV \
     RCLONE_SCRIPT_OPTIONS="--drive-chunk-size 32M --checkers 4 --transfers 4 -v" \
-    CRON_RMDELETE_TIME="30 6 * * *" \
+    CRON_RMDELETE_TIME="30 4 * * *" \
     RMLOCAL_MAX_SIZE_GB="100" \
     CLOUD_UPLOAD_AFTER_RMLOCAL=1
+
+# Cloudupload config
+# Only used when rmlocal is not used because CLOUD_UPLOAD_AFTER_RMLOCAL
+ENV \
+    CRON_CLOUDUPLOAD_TIME="0 0 31 2 0"
 
 # Mirror from cloud -> mirror
 ENV \
