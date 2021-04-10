@@ -16,6 +16,10 @@ fusermount -uz /data/media > /dev/null 2>&1
 
 echo "Mounting media..." | info
 
+# Ensure media dir exists
+s6-setuidgid abc \
+  mkdir -p /data/media
+
 set -x
 exec s6-notifyoncheck -n 1000 \
       fdmove 2 1 \
