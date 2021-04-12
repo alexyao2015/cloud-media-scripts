@@ -27,64 +27,68 @@ else
 
   echo "Removing a total of $((freeup / 1000 / 1000)) GB of a total size of $((currentSize / 1000 / 1000)) GB." | info
 
-  find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort -n | cut -d ' ' -f5- |
-    while read -r n; do
-      if [ "$maxSize" -ge "$currentSize" ]; then
-        echo "Removed $((movedSize / 1000 / 1000)) GB. Media in total $((currentSize / 1000 / 1000)) GB." | info
-        break
-      fi
+  # Generate filelist and iterate through it...
+  # Break after current size < max size
+  directory_listing="$(find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort -n | cut -d ' ' -f5-)"
+  for file_path in ${directory_listing}; do
+    if [ "$maxSize" -ge "$currentSize" ]; then
+      echo "Removed $((movedSize / 1000 / 1000)) GB. Media in total $((currentSize / 1000 / 1000)) GB." | info
+      break
+    fi
 
-      # Skip hidden or partial files.
-      case "$n" in
-        (*.partial~) continue ;;
-        (*_HIDDEN~) continue ;;
-        (*.QTFS) continue ;;
-        (*.unionfs-fuse*) continue ;;
-        (*.DS_STORE) continue ;;
-        (*.inProgress*) continue ;;
-        (*.fuse_hidden*) continue ;;
-      esac
+    # Skip hidden or partial files.
+    case "${file_path}" in
+    *.partial~) continue ;;
+    *_HIDDEN~) continue ;;
+    *.QTFS) continue ;;
+    *.unionfs-fuse*) continue ;;
+    *.DS_STORE) continue ;;
+    *.inProgress*) continue ;;
+    *.fuse_hidden*) continue ;;
+    esac
 
-      # If file is opened by another process, wait until it isn't.
-      while lsof | cut -f2 | grep -q "^$n$"; do
-        echo "File -> ${n} in use. Retrying in 10 seconds." | info
-        sleep 10
-      done
-
-      # Find the pathname relative to the root of your remote and store filename
-      destpath="$(dirname "$n" | sed -e s@/mounts/local-decrypt@@g | sed -e s@^/@@g)"
-
-      # Must calculate filesize before moving
-      fileSize=$(du -s "$n" | awk '{print $1}') # Size in kb
-
-      echo "Copying File: ${n} to: ${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" | info
-      # Move file to remote destination[s], retaining path
-      fdmove 2 1 \
-        rclone move \
-          --config=/config/rclone.conf \
-          ${RCLONE_SCRIPT_OPTIONS} \
-          "$n" \
-          "${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" &
-      child=$!
-      wait "$child"
-
-      # Increment moved size counter which is used to display the amount uploaded
-      movedSize=$((movedSize + fileSize)) # size in kb
-      # Decrement current size which is used to check to see if should continue deleting
-      currentSize=$((currentSize - fileSize))
-
-      if [[ "${fileSize}" -gt "1000000" ]]; then
-        echo "$((fileSize / 1000 / 1000)) GB uploaded. Removing a total of $((freeup / 1000 / 1000)) GB." | info
-      elif [[ "${fileSize}" -gt "100000" ]]; then # greater than 100 MB
-        echo "$((fileSize / 1000)) MB uploaded. Removing a total of $((freeup / 1000 / 1000)) GB." | info
-      else # Show in KB
-        echo "$((fileSize)) KB uploaded. Removing a total of $((freeup / 1000 / 1000)) GB." | info
-      fi
+    # If file is opened by another process, wait until it isn't.
+    while lsof | cut -f2 | grep -q "^${file_path}$"; do
+      echo "File -> ${file_path} in use. Retrying in 10 seconds." | info
+      sleep 10
     done
+
+    # Find the pathname relative to the root of your remote and store filename
+    destpath="$(dirname "${file_path}" | sed -e s@/mounts/local-decrypt@@g | sed -e s@^/@@g)"
+
+    # Must calculate filesize before moving
+    fileSize=$(du -s "${file_path}" | awk '{print $1}') # Size in kb
+
+    echo "Copying File: ${file_path} to: ${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" | info
+    # Move file to remote destination[s], retaining path
+    fdmove 2 1 \
+      rclone move \
+        --config=/config/rclone.conf \
+        ${RCLONE_SCRIPT_OPTIONS} \
+        "${file_path}" \
+        "${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" &
+    child=$!
+    wait "$child"
+
+    # Increment moved size counter which is used to display the amount uploaded
+    movedSize=$((movedSize + fileSize)) # size in kb
+    # Decrement current size which is used to check to see if should continue deleting
+    currentSize=$((currentSize - fileSize))
+
+    if [[ "${fileSize}" -gt "1000000" ]]; then
+      echo "$((fileSize / 1000 / 1000)) GB uploaded. Removing a total of $((freeup / 1000 / 1000)) GB." | info
+    elif [[ "${fileSize}" -gt "100000" ]]; then # greater than 100 MB
+      echo "$((fileSize / 1000)) MB uploaded. Removing a total of $((freeup / 1000 / 1000)) GB." | info
+    else # Show in KB
+      echo "$((fileSize)) KB uploaded. Removing a total of $((freeup / 1000 / 1000)) GB." | info
+    fi
+  done
 
   # Remove empty folders
   find /mounts/local-decrypt -mindepth 1 -type d -empty -delete
+  echo "Moved a total of $((movedSize / 1000 / 1000)) GB during this session" | info
 fi
+
 echo "###### rmlocal Completed ######" | info
 
 if [ "${CLOUD_UPLOAD_AFTER_RMLOCAL}" == "1" ]; then

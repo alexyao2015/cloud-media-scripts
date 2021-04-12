@@ -45,6 +45,7 @@ else
   fi
 
   if [ "${MIRROR_VALIDATE_CONFIG}" == "1" ]; then
+    echo "Validating mirror config because MIRROR_VALIDATE_CONFIG=1" | info "[${program_name}] "
     if ! rclone --config=/config/rclone.conf listremotes | grep -q "^${MIRROR_ENCRYPTED_ENDPOINT}:$"; then
       echo "Could not find encrypted mirror remote in rclone.conf at /config/rclone.conf!" | error "[${program_name}] "
       echo "Add a encrypted mirror remote remote named \"${MIRROR_ENCRYPTED_ENDPOINT}\" or modify the" | error "[${program_name}] "
