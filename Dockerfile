@@ -103,7 +103,7 @@ RUN mkdir -p \
 ENV \
     S6_FIX_ATTRS_HIDDEN=1 \
     S6_BEHAVIOUR_IF_STAGE2_FAILS=2 \
-    MERGERFS_OPTIONS="splice_move,atomic_o_trunc,auto_cache,big_writes,default_permissions,direct_io,nonempty,allow_other,sync_read,category.create=ff,category.search=ff,minfreespace=0" \
+    MERGERFS_OPTIONS="nonempty,allow_other,async_read=true,cache.files=auto-full,dropcacheonclose=true,category.create=ff,category.search=ff,minfreespace=0" \
     RCLONE_MASK="000" \
     MAX_LOG_SIZE_BYTES=1000000 \
     MAX_LOG_NUMBER=10 \
