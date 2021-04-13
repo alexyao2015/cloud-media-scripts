@@ -19,6 +19,9 @@ addedSize=0
 echo "###### Start cloud upload ######" | info
 # Generate filelist and iterate through it...
 directory_listing="$(find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort -n | cut -d ' ' -f5-)"
+# Set IFS to delimit on new line only
+IFSbkp="$IFS"
+IFS=$'\n'
 for file_path in ${directory_listing}; do
 
   # Find the pathname relative to the root of your remote and store filename
@@ -72,6 +75,7 @@ for file_path in ${directory_listing}; do
     echo "$((fileSize)) KB uploaded." | info
   fi
 done
+IFS="$IFSbkp"
 
 echo "Uploaded a total of $((addedSize / 1000 / 1000)) GB during this session" | info
 echo "###### Cloud upload ended successfully ######" | info
