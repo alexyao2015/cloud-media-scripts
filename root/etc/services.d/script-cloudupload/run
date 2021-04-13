@@ -21,8 +21,11 @@ echo "###### Start cloud upload ######" | info
 directory_listing="$(find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort -n | cut -d ' ' -f5-)"
 # Set IFS to delimit on new line only
 IFSbkp="$IFS"
-IFS=$'\n'
+IFSnew=$'\n'
+IFS="$IFSnew"
 for file_path in ${directory_listing}; do
+  # Need to restore IFS immediately so rclone options work
+  IFS="$IFSbkp"
 
   # Find the pathname relative to the root of your remote and store filename
   filename=${file_path//\/mounts\/local-decrypt\//} # path without /mounts/local-decrypt/
@@ -75,7 +78,6 @@ for file_path in ${directory_listing}; do
     echo "$((fileSize)) KB uploaded." | info
   fi
 done
-IFS="$IFSbkp"
 
 echo "Uploaded a total of $((addedSize / 1000 / 1000)) GB during this session" | info
 echo "###### Cloud upload ended successfully ######" | info
