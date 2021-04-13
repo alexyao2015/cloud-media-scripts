@@ -65,7 +65,7 @@ else
     # Must calculate filesize before moving
     fileSize=$(du -s "${file_path}" | awk '{print $1}') # Size in kb
 
-    echo "Copying File: ${file_path} to: ${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" | info
+    echo "Moving File: ${file_path} to: ${RCLONE_CLOUD_DECRYPT_REMOTE}:${destpath}" | info
     # Move file to remote destination[s], retaining path
     fdmove 2 1 \
       rclone move \
