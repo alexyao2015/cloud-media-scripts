@@ -82,12 +82,13 @@ else
     currentSize=$((currentSize - fileSize))
 
     if [[ "${fileSize}" -gt "1000000" ]]; then
-      echo "$((fileSize / 1000 / 1000)) GB uploaded. Removing a total of $((freeup / 1000 / 1000)) GB." | info
+      echo "$((fileSize / 1000 / 1000)) GB uploaded." | info
     elif [[ "${fileSize}" -gt "100000" ]]; then # greater than 100 MB
-      echo "$((fileSize / 1000)) MB uploaded. Removing a total of $((freeup / 1000 / 1000)) GB." | info
+      echo "$((fileSize / 1000)) MB uploaded." | info
     else # Show in KB
-      echo "$((fileSize)) KB uploaded. Removing a total of $((freeup / 1000 / 1000)) GB." | info
+      echo "$((fileSize)) KB uploaded." | info
     fi
+    echo "$((movedSize / 1000 / 1000)) GB uploaded so far. Removing a total of $((freeup / 1000 / 1000)) GB." | info
   done
 
   # Remove empty folders

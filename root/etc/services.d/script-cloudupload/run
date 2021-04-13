@@ -77,6 +77,7 @@ for file_path in ${directory_listing}; do
   else # Show in KB
     echo "$((fileSize)) KB uploaded." | info
   fi
+  echo "$((addedSize / 1000 / 1000)) GB uploaded so far." | info
 done
 
 echo "Uploaded a total of $((addedSize / 1000 / 1000)) GB during this session" | info
