@@ -19,5 +19,5 @@ exec s6-notifyoncheck -n 1000 \
         mergerfs -f \
         -o uid="${PUID:-911}" -o gid="${PGID:-911}" \
         -o "${MERGERFS_OPTIONS}" \
-        /mounts/local-decrypt:/mounts/cloud-decrypt \
+        /mounts/local-decrypt:/mounts/cloud-decrypt=NC \
         /data/mnt
