@@ -118,7 +118,7 @@ ENV \
 
 # Rclone mount config
 ENV \
-    RCLONE_VFS_READ_OPTIONS="--buffer-size=128M --dir-cache-time=72h --poll-interval=60s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 -vv" \
+    RCLONE_VFS_READ_OPTIONS="--buffer-size=128M --dir-cache-time=72h --fast-list --poll-interval=60s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 -vv" \
     RCLONE_LOCAL_DECRYPT_REMOTE="local-decrypt" \
     RCLONE_LOCAL_DECRYPT_DIR="/mnt/local-decrypt" \
     RCLONE_CLOUD_DECRYPT_REMOTE="cloud" \
@@ -135,14 +135,15 @@ ENV \
 
 # Dedupe Config
 ENV \
-    DEDUPE_OPTIONS="--dedupe-mode largest --tpslimit 4 -v" \
+    DEDUPE_OPTIONS="--dedupe-mode largest --fast-list --tpslimit 4 -v" \
     CRON_DEDUPE_TIME="0 6 * * *" \
     DEDUPE_CLOUD_DECRYPT="1" \
     DEDUPE_MIRROR_REMOTE="1"
 
 # Rmlocal Config
+# RCLONE_SCRIPT_OPTIONS applies to cloudupload and rmlocal
 ENV \
-    RCLONE_SCRIPT_OPTIONS="--drive-chunk-size 32M --checkers 4 --transfers 4 -v" \
+    RCLONE_SCRIPT_OPTIONS="--drive-chunk-size 32M --checkers 4 --fast-list --transfers 4 -v" \
     CRON_RMDELETE_TIME="30 4 * * *" \
     RMLOCAL_MAX_SIZE_GB="100" \
     CLOUD_UPLOAD_AFTER_RMLOCAL=1
@@ -154,7 +155,7 @@ ENV \
 
 # Mirror from cloud -> mirror
 ENV \
-    MIRROR_OPTIONS="--transfers 4 --bwlimit 100M --tpslimit 8 --tpslimit-burst 8 --drive-server-side-across-configs -v" \
+    MIRROR_OPTIONS="--transfers 4 --bwlimit 100M --fast-list --tpslimit 8 --tpslimit-burst 8 --drive-server-side-across-configs -v" \
     CRON_MIRROR_TIME="0 6 * * *" \
     MIRROR_ENCRYPTED_ENDPOINT="mirror-copy-raw" \
     CLOUD_ENCYPTED_ENDPOINT="cloud-raw" \
