@@ -88,12 +88,10 @@ RUN mkdir -p \
         /log \
     && chmod 755 \
         /mounts \
-        /data \
         /config \
         /log \
     && chown abc:abc \
         /mounts \
-        /data \
         /config \
     && chown nobody:nobody \
         /log
