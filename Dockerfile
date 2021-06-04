@@ -84,7 +84,6 @@ RUN chmod a+x /usr/bin/* \
 RUN mkdir -p \
         /mounts/local-decrypt \
         /mounts/cloud-decrypt \
-        /data/mnt \
         /config \
         /log \
     && chmod 755 \
@@ -172,5 +171,9 @@ ENV \
 ENV \
     RCLONE_USE_MIRROR_AS_CLOUD_REMOTE="0" \
     CONTAINER_START_RCLONE_CONFIG=0
+
+# Container Config
+ENV \
+    FINAL_MOUNT_DIR="/data/mnt"
 
 CMD ["/init"]
