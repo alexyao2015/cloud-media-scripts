@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rclone-mount-config
+  namespace: default
+type: Opaque
+data:
+  rclone.conf: base64_encoded_rclone_conf_file
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: rclone-mount
+  namespace: default
+  labels:
+    app: rclone-mount
+spec:
+  selector:
+    matchLabels:
+      app: rclone-mount
+  template:
+    metadata:
+      name: rclone-mount
+      labels:
+        app: rclone-mount
+    spec:
+      containers:
+      - name: rclone-mount
+        env:
+        - name: CRON_DEDUPE_TIME
+          value: 0 0 31 2 0
+        - name: CRON_MIRROR_TIME
+          value: 0 0 31 2 0
+        - name: CRON_RMDELETE_TIME
+          value: 0 0 31 2 0
+        - name: PGID
+          value: "1100"
+        - name: PRECACHE_VFS_DIR
+          value: media
+        - name: PUID
+          value: "1100"
+        - name: RCLONE_USE_MIRROR_AS_CLOUD_REMOTE
+          value: "0"
+        - name: TZ
+          value: America/Chicago
+        image: ghcr.io/alexyao2015/cloud-media-scripts/core:refactor
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /data
+          name: datamountpath
+          mountPropagation: Bidirectional
+        - mountPath: /mounts/local-decrypt
+          name: localmountpath
+        - mountPath: /config
+          name: rcloneconfigpath
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - hostPath:
+          path: /mnt/rclonelocal/mnt
+          type: ""
+        name: datamountpath
+      - hostPath:
+          path: /mnt/rclonelocal/data
+          type: ""
+        name: localmountpath
+      - name: rcloneconfigpath
+        secret:
+          defaultMode: 256
+          items:
+          - key: rclone.conf
+            path: rclone.conf
+          optional: false
+          secretName: rclone-mount-config
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
