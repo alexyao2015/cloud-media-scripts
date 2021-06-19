@@ -137,8 +137,8 @@ ENV \
 ENV \
     DEDUPE_OPTIONS="--dedupe-mode largest --fast-list --tpslimit 4 -v" \
     CRON_DEDUPE_TIME="0 6 * * *" \
-    DEDUPE_CLOUD_DECRYPT="1" \
-    DEDUPE_MIRROR_REMOTE="1"
+    DEDUPE_CLOUD_DECRYPT=1 \
+    DEDUPE_MIRROR_REMOTE=1
 
 # Rmlocal Config
 # RCLONE_SCRIPT_OPTIONS applies to cloudupload and rmlocal
@@ -170,7 +170,7 @@ ENV \
 
 # Temporary Config
 ENV \
-    RCLONE_USE_MIRROR_AS_CLOUD_REMOTE="0" \
+    RCLONE_USE_MIRROR_AS_CLOUD_REMOTE=0 \
     CONTAINER_START_RCLONE_CONFIG=0
 
 CMD ["/init"]

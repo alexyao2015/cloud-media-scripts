@@ -10,8 +10,8 @@
 
 /bin/s6-svwait -U /var/run/s6/services/cloud-decrypt
 
-if [ "${PRECACHE_ENABLED}" == "1" ]; then
-  if [ "${PRECACHE_USE_RC}" == "1" ]; then
+if [ "${PRECACHE_ENABLED}" -eq 1 ]; then
+  if [ "${PRECACHE_USE_RC}" -eq 1 ]; then
     if [ -z "${PRECACHE_VFS_DIR}" ]; then
       echo "Running precache using vfs/refresh for the entire mount..." | info
       s6-setuidgid abc rclone rc --config=/config/rclone.conf vfs/refresh recursive=true

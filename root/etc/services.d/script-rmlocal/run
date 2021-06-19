@@ -98,7 +98,7 @@ fi
 
 echo "###### rmlocal Completed ######" | info
 
-if [ "${CLOUD_UPLOAD_AFTER_RMLOCAL}" == "1" ]; then
+if [ "${CLOUD_UPLOAD_AFTER_RMLOCAL}" -eq 1 ]; then
   echo "Starting Cloud Upload because CLOUD_UPLOAD_AFTER_RMLOCAL=1" | info
   /bin/s6-svc -o /var/run/s6/services/script-cloudupload
 fi

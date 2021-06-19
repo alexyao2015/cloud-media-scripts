@@ -16,7 +16,7 @@ trap _term SIGTERM
 
 # Dedupe Google Drive with defined location
 echo "###### Begin Dedupe ######" | info
-if [ "${DEDUPE_CLOUD_DECRYPT}" == "1" ]; then
+if [ "${DEDUPE_CLOUD_DECRYPT}" -eq 1 ]; then
   echo "Deduping cloud-decrypt at ${RCLONE_CLOUD_DECRYPT_REMOTE}:" | info
   fdmove 2 1 \
     rclone dedupe \
@@ -27,7 +27,7 @@ if [ "${DEDUPE_CLOUD_DECRYPT}" == "1" ]; then
   wait "$child"
   echo "Deduping Google Drive at ${RCLONE_CLOUD_DECRYPT_REMOTE} Complete" | info
 fi
-if [ "${DEDUPE_MIRROR_REMOTE}" == "1" ]; then
+if [ "${DEDUPE_MIRROR_REMOTE}" -eq 1 ]; then
 	echo "Deduping mirror remote at ${RCLONE_MIRROR_DECRYPT_REMOTE}:" | info
 	fdmove 2 1 \
 	  rclone dedupe \

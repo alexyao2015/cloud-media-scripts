@@ -28,7 +28,7 @@ else
   fi
 
   # Only check mirror decrypt if enabled
-  if [ "${RCLONE_USE_MIRROR_AS_CLOUD_REMOTE}" == "1" ]; then
+  if [ "${RCLONE_USE_MIRROR_AS_CLOUD_REMOTE}" -eq 1 ]; then
     if ! rclone --config=/config/rclone.conf listremotes | grep -q "^${RCLONE_MIRROR_DECRYPT_REMOTE}:$"; then
       echo "Could not find mirror-decrypt remote in rclone.conf at /config/rclone.conf!" | error "[${program_name}] "
       echo "Add a mirror-decrypt remote named \"${RCLONE_MIRROR_DECRYPT_REMOTE}\" or modify the" | error "[${program_name}] "
@@ -44,7 +44,7 @@ else
     fi
   fi
 
-  if [ "${MIRROR_VALIDATE_CONFIG}" == "1" ]; then
+  if [ "${MIRROR_VALIDATE_CONFIG}" -eq 1 ]; then
     echo "Validating mirror config because MIRROR_VALIDATE_CONFIG=1" | info "[${program_name}] "
     if ! rclone --config=/config/rclone.conf listremotes | grep -q "^${MIRROR_ENCRYPTED_ENDPOINT}:$"; then
       echo "Could not find encrypted mirror remote in rclone.conf at /config/rclone.conf!" | error "[${program_name}] "
