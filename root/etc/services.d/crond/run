@@ -6,4 +6,4 @@
 # ==============================================================================
 
 echo "Starting crond..." | info
-exec fdmove 1 3 crond -f
+exec fdmove 2 1 crond -f
