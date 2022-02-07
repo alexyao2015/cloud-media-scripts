@@ -18,7 +18,16 @@ addedSize=0
 
 echo "###### Start cloud upload ######" | info
 # Generate filelist and iterate through it...
-directory_listing="$(find /mounts/local-decrypt -type f -print0 | xargs -0 stat -c '%Y :%y %n' | sort -n | cut -d ' ' -f5-)"
+directory_listing="$(find /mounts/local-decrypt -type f \
+    -not -regex ".*\.partial~" \
+    -not -regex ".*_HIDDEN~" \
+    -not -regex ".*\.QTFS" \
+    -not -regex ".*\.unionfs-fuse.*" \
+    -not -regex ".*\.DS_STORE" \
+    -not -regex ".*\.inProgress.*" \
+    -not -regex ".*\.fuse_hidden.*" \
+    -print0 \
+  | xargs -0 stat -c '%Y :%y %n' | sort -n | cut -d ' ' -f5-)"
 # Set IFS to delimit on new line only
 IFSbkp="$IFS"
 IFSnew=$'\n'
@@ -30,17 +39,6 @@ for file_path in ${directory_listing}; do
   # Find the pathname relative to the root of your remote and store filename
   filename=${file_path//\/mounts\/local-decrypt\//} # path without /mounts/local-decrypt/
   destpath="$(dirname "${file_path}" | sed -e s@/mounts/local-decrypt@@g | sed -e s@^/@@g)"
-
-  # Skip hidden or partial files.
-  case "${file_path}" in
-  *.partial~) continue ;;
-  *_HIDDEN~) continue ;;
-  *.QTFS) continue ;;
-  *.unionfs-fuse*) continue ;;
-  *.DS_STORE) continue ;;
-  *.inProgress*) continue ;;
-  *.fuse_hidden*) continue ;;
-  esac
 
   # Ensure file does not already exist on cloud dir
   if [ -f "/mounts/cloud-decrypt/${filename}" ]; then
