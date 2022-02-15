@@ -101,7 +101,7 @@ COPY --from=rootfs-converter /rootfs /
 ENV \
     S6_FIX_ATTRS_HIDDEN=1 \
     S6_BEHAVIOUR_IF_STAGE2_FAILS=2 \
-    MERGERFS_OPTIONS="nonempty,allow_other,async_read=true,cache.files=partial,dropcacheonclose=true,category.create=ff,category.search=ff,minfreespace=0" \
+    MERGERFS_OPTIONS="nonempty,allow_other,async_read=true,cache.files=auto-full,dropcacheonclose=true,category.create=ff,category.search=ff,minfreespace=0" \
     RCLONE_MASK="000" \
     MAX_LOG_SIZE_BYTES=1000000 \
     MAX_LOG_NUMBER=10 \
