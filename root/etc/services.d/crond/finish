@@ -1,7 +1,0 @@
-#!/usr/bin/with-contenv sh
-# ==============================================================================
-# Crond
-# Take down the S6 supervision tree if crond goes down
-# ==============================================================================
-
-s6-svscanctl -t /var/run/s6/services

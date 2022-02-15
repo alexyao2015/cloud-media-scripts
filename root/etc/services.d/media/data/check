@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 
 if df -P -T | grep /data/mnt | awk '{print $2}' | grep fuse\.mergerfs > /dev/null; then
     exit # media is mounted

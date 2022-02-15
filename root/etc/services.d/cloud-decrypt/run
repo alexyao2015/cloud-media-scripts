@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 . "/usr/local/bin/logger"
 # ==============================================================================
 # cloud-decrypt
@@ -15,16 +15,15 @@ fi
 
 echo "Mounting cloud-decrypt..." | info
 
-set -x
-
-exec s6-notifyoncheck -n 1000 \
-      fdmove 2 1 \
-        rclone mount \
-          --config=/config/rclone.conf \
-          --allow-other \
-          --uid "${PUID:-911}" \
-          --gid "${PGID:-911}" \
-          --umask "${RCLONE_MASK}" \
-          ${RCLONE_VFS_READ_OPTIONS} \
-          "${cloud_decrypt_remote}:${cloud_decrypt_dir}" \
-          /mounts/cloud-decrypt
+exec \
+  s6-notifyoncheck -n 1000 \
+    fdmove -c 2 1 \
+      rclone mount \
+        --config=/config/rclone.conf \
+        --allow-other \
+        --uid "${PUID:-911}" \
+        --gid "${PGID:-911}" \
+        --umask "${RCLONE_MASK}" \
+        ${RCLONE_VFS_READ_OPTIONS} \
+        "${cloud_decrypt_remote}:${cloud_decrypt_dir}" \
+        /mounts/cloud-decrypt

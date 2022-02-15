@@ -1,5 +1,5 @@
-ARG MERGERFS_VERSION="2.32.4"
-ARG RCLONE_VERSION="v1.55.0"
+ARG MERGERFS_VERSION="2.33.3"
+ARG RCLONE_VERSION="v1.57.0"
 
 ###################
 # MergerFS
@@ -40,9 +40,13 @@ FROM alpine:latest as s6downloader
 WORKDIR /s6downloader
 
 RUN set -x \
-    && wget -O /tmp/s6-overlay.tar.gz "https://github.com/just-containers/s6-overlay/releases/download/v2.2.0.3/s6-overlay-amd64.tar.gz" \
+    && S6_OVERLAY_VERSION=$(wget --no-check-certificate -qO - https://api.github.com/repos/just-containers/s6-overlay/releases/latest | awk '/tag_name/{print $4;exit}' FS='[""]') \
+    && S6_OVERLAY_VERSION=${S6_OVERLAY_VERSION:1} \
+    && wget -O /tmp/s6-overlay-arch.tar.xz "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64-${S6_OVERLAY_VERSION}.tar.xz" \
+    && wget -O /tmp/s6-overlay-noarch.tar.xz "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch-${S6_OVERLAY_VERSION}.tar.xz" \
     && mkdir -p /tmp/s6 \
-    && tar zxvf /tmp/s6-overlay.tar.gz -C /tmp/s6 \
+    && tar -Jxvf /tmp/s6-overlay-noarch.tar.xz -C /tmp/s6 \
+    && tar -Jxvf /tmp/s6-overlay-arch.tar.xz -C /tmp/s6 \
     && cp -r /tmp/s6/* .
 
 ###################
@@ -57,7 +61,8 @@ RUN set -x \
 
 COPY root .
 RUN set -x \
-    && find . -type f -print0 | xargs -0 -n 1 -P 4 dos2unix
+    && find . -type f -print0 | xargs -0 -n 1 -P 4 dos2unix \
+    && chmod -R +x *
 
 # ====================Begin Image===========================
 
@@ -69,17 +74,7 @@ RUN apk add --no-cache \
         shadow \
         tzdata
 
-COPY --from=rclonedownloader /rclonedownloader/rclone /usr/bin
-COPY --from=mergerfsbuilder /mergerfs/install/bin /bin
-COPY --from=s6downloader /s6downloader /
-COPY --from=rootfs-converter /rootfs /
-
 RUN sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
-
-RUN chmod a+x /usr/bin/* \
-    && groupmod -g 1000 users \
-    && useradd -u 911 -U -d / -s /bin/false abc \
-    && usermod -G users abc
 
 RUN mkdir -p \
         /mounts/local-decrypt \
@@ -87,23 +82,26 @@ RUN mkdir -p \
         /data/mnt \
         /config \
         /log \
+        /scratch \
     && chmod 755 \
         /mounts \
         /data \
         /config \
         /log \
-    && chown abc:abc \
-        /mounts \
-        /data \
-        /config \
+        /scratch \
     && chown nobody:nobody \
         /log
+
+COPY --from=rclonedownloader /rclonedownloader/rclone /usr/bin
+COPY --from=mergerfsbuilder /mergerfs/install/bin /bin
+COPY --from=s6downloader /s6downloader /
+COPY --from=rootfs-converter /rootfs /
 
 # System Vars
 ENV \
     S6_FIX_ATTRS_HIDDEN=1 \
     S6_BEHAVIOUR_IF_STAGE2_FAILS=2 \
-    MERGERFS_OPTIONS="nonempty,allow_other,async_read=true,cache.files=auto-full,dropcacheonclose=true,category.create=ff,category.search=ff,minfreespace=0" \
+    MERGERFS_OPTIONS="nonempty,allow_other,async_read=true,cache.files=partial,dropcacheonclose=true,category.create=ff,category.search=ff,minfreespace=0" \
     RCLONE_MASK="000" \
     MAX_LOG_SIZE_BYTES=1000000 \
     MAX_LOG_NUMBER=10 \
@@ -118,7 +116,7 @@ ENV \
 
 # Rclone mount config
 ENV \
-    RCLONE_VFS_READ_OPTIONS="--buffer-size=128M --dir-cache-time=72h --fast-list --poll-interval=60s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 -vv" \
+    RCLONE_VFS_READ_OPTIONS="--cache-dir=/scratch --dir-cache-time=72h --fast-list --poll-interval=24h --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 --vfs-cache-max-age=12h --vfs-cache-max-size=20G --vfs-cache-mode=full --vfs-cache-poll-interval=1h --vfs-read-ahead=128M --vfs-read-chunk-size-limit=512M --vfs-read-chunk-size=64M -vv" \
     RCLONE_LOCAL_DECRYPT_REMOTE="local-decrypt" \
     RCLONE_LOCAL_DECRYPT_DIR="/mnt/local-decrypt" \
     RCLONE_CLOUD_DECRYPT_REMOTE="cloud" \
@@ -173,4 +171,4 @@ ENV \
     RCLONE_USE_MIRROR_AS_CLOUD_REMOTE=0 \
     CONTAINER_START_RCLONE_CONFIG=0
 
-CMD ["/init"]
+ENTRYPOINT ["/init"]

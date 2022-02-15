@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 
 if df -P -T | grep /mounts/local-decrypt | awk '{print $2}' | grep fuse\.rclone > /dev/null; then
     exit # local-decrypt is mounted

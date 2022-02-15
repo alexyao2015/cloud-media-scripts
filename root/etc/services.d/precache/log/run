@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 program_name="precache"
 
 s6-format-filter "%1 %s" "[${program_name}]" | logutil-service /log/"${program_name}"

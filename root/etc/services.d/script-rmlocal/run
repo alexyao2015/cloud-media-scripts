@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 . "/usr/local/bin/logger"
 # ==============================================================================
 # cloudupload
@@ -12,7 +12,7 @@ _term() {
 
 trap _term SIGTERM
 
-/bin/s6-svwait -U /var/run/s6/services/media
+s6-svwait -U /run/service/media
 
 echo "###### Begin rmlocal ######" | info
 echo "Removing files based on space" | info
@@ -107,5 +107,5 @@ echo "###### rmlocal Completed ######" | info
 
 if [ "${CLOUD_UPLOAD_AFTER_RMLOCAL}" -eq 1 ]; then
   echo "Starting Cloud Upload because CLOUD_UPLOAD_AFTER_RMLOCAL=1" | info
-  /bin/s6-svc -o /var/run/s6/services/script-cloudupload
+  s6-svc -o /run/service/script-cloudupload
 fi

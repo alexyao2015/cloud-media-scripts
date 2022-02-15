@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 . "/usr/local/bin/logger"
 # ==============================================================================
 # cloudupload
@@ -12,7 +12,7 @@ _term() {
 
 trap _term SIGTERM
 
-/bin/s6-svwait -U /var/run/s6/services/media
+s6-svwait -U /run/service/media
 rclone_mirror_encrypted_endpoint="${MIRROR_ENCRYPTED_ENDPOINT}:${MIRROR_SUBDIR}" # use encrypted mount so server side copying works
 rclone_cloud_encrypted_endpoint="${CLOUD_ENCYPTED_ENDPOINT}:${MIRROR_SUBDIR}"
 

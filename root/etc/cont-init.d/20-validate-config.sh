@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 . "/usr/local/bin/logger"
 program_name="validate-config"
 check_failed=0

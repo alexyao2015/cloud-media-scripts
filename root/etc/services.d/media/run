@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 . "/usr/local/bin/logger"
 # ==============================================================================
 # media
@@ -6,10 +6,10 @@
 # ==============================================================================
 
 if [ "${RCLONE_MOUNT_LOCAL_DECRYPT}" -eq "1" ]; then
-  /bin/s6-svc -u /var/run/s6/services/local-decrypt
-  /bin/s6-svwait -U /var/run/s6/services/local-decrypt
+  s6-svc -u /run/service/local-decrypt
+  s6-svwait -U /run/service/local-decrypt
 fi
-/bin/s6-svwait -U /var/run/s6/services/cloud-decrypt
+s6-svwait -U /run/service/cloud-decrypt
 
 echo "Mounting media..." | info
 

@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 . "/usr/local/bin/logger"
 # ==============================================================================
 # local-decrypt
@@ -9,7 +9,7 @@ echo "Mounting local-decrypt..." | info
 
 set -x
 exec s6-notifyoncheck -n 1000 \
-      fdmove 2 1 \
+      fdmove -c 2 1 \
         rclone mount \
           --config=/config/rclone.conf \
           -v \

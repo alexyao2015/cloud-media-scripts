@@ -1,11 +1,11 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 . "/usr/local/bin/logger"
 # ==============================================================================
 # cloudupload
 # Uploads local-decrypt to cloud
 # ==============================================================================
 
-/bin/s6-svwait -U /var/run/s6/services/media
+s6-svwait -U /run/service/media
 
 plex_url=$(printenv PLEX_URL | tr -d '"' | tr -d "'")
 plex_token=$(printenv PLEX_TOKEN | tr -d '"' | tr -d "'")

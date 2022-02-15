@@ -1,7 +1,7 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 # ==============================================================================
 # cloud-decrypt
 # Take down the S6 supervision tree if local-decrypt goes down
 # ==============================================================================
 
-s6-svscanctl -t /var/run/s6/services
+/run/s6/basedir/bin/halt

@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 . "/usr/local/bin/logger"
 # ==============================================================================
 # cloudupload
@@ -12,7 +12,7 @@ _term() {
 
 trap _term SIGTERM
 
-/bin/s6-svwait -U /var/run/s6/services/media
+s6-svwait -U /run/service/media
 
 # Dedupe Google Drive with defined location
 echo "###### Begin Dedupe ######" | info

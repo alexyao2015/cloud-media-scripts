@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 . "/usr/local/bin/logger"
 # ==============================================================================
 # Crond
@@ -6,4 +6,7 @@
 # ==============================================================================
 
 echo "Starting crond..." | info
-exec fdmove 2 1 crond -f
+
+exec \
+    fdmove -c 2 3 \
+      /usr/sbin/crond -f -d 8
