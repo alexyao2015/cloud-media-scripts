@@ -7,6 +7,4 @@
 
 echo "Starting crond..." | info
 
-exec \
-    fdmove -c 2 3 \
-      /usr/sbin/crond -f -d 8
+exec /usr/sbin/crond -f
