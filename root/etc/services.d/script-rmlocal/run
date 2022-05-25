@@ -109,15 +109,3 @@ if [ "${CLOUD_UPLOAD_AFTER_RMLOCAL}" -eq 1 ]; then
   echo "Starting Cloud Upload because CLOUD_UPLOAD_AFTER_RMLOCAL=1" | info
   s6-svc -o /run/service/script-cloudupload
 fi
-
-if [ "${PRECACHE_ENABLED}" -eq 1 ] && [ "${PRECACHE_USE_RC}" -eq 1 ]; then
-  if [ -z "${PRECACHE_VFS_DIR}" ]; then
-    echo "Running precache after rmlocal using vfs/refresh for the entire mount..." | info
-    rclone rc --config=/config/rclone.conf vfs/refresh recursive=true
-  else
-    echo "Running precache after rmlocal using vfs/refresh for dir=${PRECACHE_VFS_DIR}..." | info
-    rclone rc --config=/config/rclone.conf vfs/refresh dir="${PRECACHE_VFS_DIR}" recursive=true
-  fi
-else
-  echo "PRECACHE_ENABLED or PRECACHE_USE_RC are not enabled. Not running vfs/refresh after rmlocal..." | info
-fi
