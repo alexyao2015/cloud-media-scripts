@@ -101,7 +101,7 @@ COPY --from=rootfs-converter /rootfs /
 ENV \
     S6_FIX_ATTRS_HIDDEN=1 \
     S6_BEHAVIOUR_IF_STAGE2_FAILS=2 \
-    MERGERFS_OPTIONS="nonempty,allow_other,async_read=true,cache.files=auto-full,dropcacheonclose=true,category.create=ff,category.search=ff,minfreespace=0" \
+    MERGERFS_OPTIONS="nonempty,use_ino,allow_other,func.getattr=newest,cache.files=auto-full,dropcacheonclose=true,category.create=ff,category.search=ff,minfreespace=0" \
     RCLONE_MASK="000" \
     MAX_LOG_SIZE_BYTES=1000000 \
     MAX_LOG_NUMBER=10 \
@@ -116,7 +116,7 @@ ENV \
 
 # Rclone mount config
 ENV \
-    RCLONE_VFS_READ_OPTIONS="--cache-dir=/scratch --dir-cache-time=168h --fast-list --poll-interval=60s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 --vfs-cache-max-age=12h --vfs-cache-max-size=6G --vfs-cache-mode=full --vfs-cache-poll-interval=1h --vfs-read-ahead=512M --vfs-read-chunk-size-limit=2G --vfs-read-chunk-size=64M -vv" \
+    RCLONE_VFS_READ_OPTIONS="--cache-dir=/scratch --dir-cache-time=5000h --drive-pacer-burst 200 --drive-pacer-min-sleep 10ms --poll-interval=10s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 --vfs-cache-max-age=5000h --vfs-cache-max-size=6G --vfs-cache-mode=full --vfs-cache-poll-interval=5m --vfs-read-ahead=512M --vfs-read-chunk-size-limit=2G --vfs-read-chunk-size=64M -vv" \
     RCLONE_LOCAL_DECRYPT_REMOTE="local-decrypt" \
     RCLONE_LOCAL_DECRYPT_DIR="/mnt/local-decrypt" \
     RCLONE_CLOUD_DECRYPT_REMOTE="cloud" \
