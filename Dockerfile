@@ -116,7 +116,7 @@ ENV \
 
 # Rclone mount config
 ENV \
-    RCLONE_VFS_READ_OPTIONS="--cache-dir=/scratch --dir-cache-time=5000h --drive-pacer-burst 200 --drive-pacer-min-sleep 10ms --poll-interval=10s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 --vfs-cache-max-age=5000h --vfs-cache-max-size=6G --vfs-cache-mode=full --vfs-cache-poll-interval=5m --vfs-read-ahead=512M --vfs-read-chunk-size-limit=2G --vfs-read-chunk-size=64M -vv" \
+    RCLONE_VFS_READ_OPTIONS="--cache-dir=/scratch --dir-cache-time=5000h --drive-pacer-burst 200 --drive-pacer-min-sleep 10ms --poll-interval=10s --rc --rc-addr=:5572 --timeout=1h --tpslimit=1750 --vfs-cache-max-age=5000h --vfs-cache-max-size=6G --vfs-cache-mode=full --vfs-cache-poll-interval=5m --vfs-read-ahead=512M --vfs-read-chunk-size-limit=1G --vfs-read-chunk-size=32M -vv" \
     RCLONE_LOCAL_DECRYPT_REMOTE="local-decrypt" \
     RCLONE_LOCAL_DECRYPT_DIR="/mnt/local-decrypt" \
     RCLONE_CLOUD_DECRYPT_REMOTE="cloud" \
