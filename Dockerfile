@@ -54,6 +54,7 @@ RUN apk add --no-cache \
         coreutils \
         findutils \
         fuse \
+	fuse3 \
         libgcc \
         libstdc++ \ 
         openssl \
