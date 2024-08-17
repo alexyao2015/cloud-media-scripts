@@ -35,7 +35,7 @@ RUN wget --no-check-certificate "$RCLONE_URL" \
     && chown root:root rclone \
     && chmod 755 rclone
 
-FROM busybox:latest as s6downloader
+FROM alpine:latest as s6downloader
 WORKDIR /s6downloader
 
 RUN apk add xz \
