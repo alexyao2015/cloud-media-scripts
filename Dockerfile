@@ -39,9 +39,9 @@ FROM busybox:latest as s6downloader
 WORKDIR /s6downloader
 
 RUN OVERLAY_VERSION=$(wget --no-check-certificate -qO - https://api.github.com/repos/just-containers/s6-overlay/releases/latest | awk '/tag_name/{print $4;exit}' FS='[""]') \
-    && wget -O s6-overlay.tar.gz "https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-amd64.tar.gz" \
-    && tar xfz s6-overlay.tar.gz \
-    && rm s6-overlay.tar.gz
+    && wget -O s6-overlay.tar.xz "https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-x64_x86.tar.xz" \
+    && tar xfz s6-overlay.tar.xz \
+    && rm s6-overlay.tar.xz
 
 # ====================Begin Image===========================
 
