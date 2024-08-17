@@ -41,7 +41,8 @@ WORKDIR /s6downloader
 RUN apk add xz \
     && OVERLAY_VERSION=$(wget --no-check-certificate -qO - https://api.github.com/repos/just-containers/s6-overlay/releases/latest | awk '/tag_name/{print $4;exit}' FS='[""]') \
     && wget -O s6-overlay.tar.xz "https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz" \
-    && tar xfz s6-overlay.tar.xz \
+    && xz -d s6-overlay.tar.xz \
+    && tar xfz s6-overlay.tar \
     && rm s6-overlay.tar.xz
 
 # ====================Begin Image===========================
