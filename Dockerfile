@@ -71,6 +71,7 @@ FROM alpine:latest
 RUN apk add --no-cache \
         curl \
         fuse \
+        fuse3 \
         shadow \
         tzdata
 
