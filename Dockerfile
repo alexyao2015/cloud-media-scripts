@@ -156,7 +156,7 @@ ENV \
 ENV \
     MIRROR_OPTIONS="--transfers 4 --bwlimit 100M --fast-list --tpslimit 8 --tpslimit-burst 8 --drive-server-side-across-configs -v" \
     CRON_MIRROR_TIME="0 6 * * *" \
-    MIRROR_ENCRYPTED_ENDPOINT="mirror-copy-raw" \
+    MIRROR_ENCRYPTED_ENDPOINT="mirror-raw" \
     CLOUD_ENCYPTED_ENDPOINT="cloud-raw" \
     MIRROR_SUBDIR="Sync" \
     MIRROR_VALIDATE_CONFIG=1
