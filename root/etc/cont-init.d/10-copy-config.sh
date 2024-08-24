@@ -10,6 +10,3 @@ if [ "${CONTAINER_START_RCLONE_CONFIG}" -eq "1" ]; then
   echo "on the next run!" | info "[${program_name}] "
   exit 1
 fi
-
-echo "Copying config to /config/rclone.conf.bak..." | info "[${program_name}] "
-cp /config/rclone.conf /config/rclone.conf.bak > /dev/null 2>&1 || true
